@@ -1,0 +1,67 @@
+<!--
+
+     Copyright 2016 Electric Cloud, Inc.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+
+-->
+<editor>
+    <formElement>
+        <type>entry</type>
+        <label>Configuration:</label>
+        <property>config</property>
+        <required>1</required>
+        <configuration>1</configuration>
+        <documentation>Unique name for the plugin configuration.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Org Name:</label>
+        <property>orgName</property>
+        <required>1</required>
+        <documentation>The name of the organization.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Repository Name:</label>
+        <property>repoName</property>
+        <required>1</required>
+        <documentation>The name of the organization.</documentation>
+    </formElement>
+    <formElement>
+        <type>entry</type>
+        <label>Team Name:</label>
+        <property>teamName</property>
+        <required>1</required>
+        <documentation>The name of the team.</documentation>
+    </formElement>
+    <formElement>
+        <type>select</type>
+        <label>Permission:</label>
+        <property>permissionName</property>
+        <required>1</required>
+        <documentation>Permission for the repository.</documentation>
+        <option>
+            <name>Write</name>
+            <value>PUSH</value>
+        </option>
+        <option>
+            <name>Read</name>
+            <value>PULL</value>
+        </option>
+        <option>
+            <name>Admin</name>
+            <value>ADMIN</value>
+        </option>
+    </formElement>
+</editor>

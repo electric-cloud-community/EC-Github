@@ -1,0 +1,14 @@
+<plugin>
+  <key>EC-Github</key>
+  <label>EC-Github</label>
+  <version>1.0.0.0</version>
+  <author>P. Shubina</author>
+  <authorUrl>pshubina@electric-cloud.com</authorUrl>
+  <category>Source Control</category>
+  <commander-version min="6.0" />
+  <description></description>
+  <configure>ec_config</configure>
+  <pluginWizardBased>true</pluginWizardBased>
+  <depends min="1.4.1">EC-PluginManager</depends>
+  <help>help.xml</help>
+</plugin>
