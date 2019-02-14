@@ -29,7 +29,7 @@
         <label>Owner:</label>
         <property>ec_github_owner</property>
         <required>1</required>
-        <documentation>Repository owner.</documentation>
+        <documentation>Repository owner, may be either user or organization.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
@@ -60,7 +60,11 @@
         <label>Teams:</label>
         <property>ec_github_teams</property>
         <required>0</required>
-        <documentation>Teams to add to the repository. E.g. "admins:ADMIN", "users:PUSH". Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.</documentation>
+        <documentation>Teams to add to the repository.
+            E.g. "admins:ADMIN", "users:PUSH".
+            Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
+            Teams are applicable to the organization only.
+        </documentation>
     </formElement>
     <formElement>
         <type>textarea</type>

@@ -3,10 +3,10 @@
   <label>EC-Github</label>
   <version>1.0.0.0</version>
   <author>Electric Cloud</author>
-  <authorUrl>pshubina@electric-cloud.com</authorUrl>
+  <authorUrl>http://www.electric-cloud.com/support</authorUrl>
   <category>Source Control</category>
   <commander-version min="6.0" />
-  <description></description>
+  <description>ElectricFlow integration for Github API</description>
   <configure>ec_config</configure>
   <pluginWizardBased>true</pluginWizardBased>
   <depends min="1.4.1">EC-PluginManager</depends>
