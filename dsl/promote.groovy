@@ -16,16 +16,8 @@ def pluginDir = getProperty("/projects/$pluginName/pluginDir").value
 // ** steps with attached credentials
 def stepsWithAttachedCredentials = [
 		[
-			procedureName: 'Protect Branch',
-			stepName: 'Protect Branch'
-		],
-		[
 			procedureName: 'Create Repository',
 			stepName: 'Create Repository'
-		],
-		[
-			procedureName: 'Set Team Permissions',
-			stepName: 'Set Team Permissions'
 		],
 	]
 // ** end steps with attached credentials

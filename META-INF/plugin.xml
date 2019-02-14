@@ -2,7 +2,7 @@
   <key>EC-Github</key>
   <label>EC-Github</label>
   <version>1.0.0.0</version>
-  <author>P. Shubina</author>
+  <author>Electric Cloud</author>
   <authorUrl>pshubina@electric-cloud.com</authorUrl>
   <category>Source Control</category>
   <commander-version min="6.0" />

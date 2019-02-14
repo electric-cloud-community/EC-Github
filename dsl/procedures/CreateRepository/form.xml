@@ -27,39 +27,46 @@
     <formElement>
         <type>entry</type>
         <label>Owner:</label>
-        <property>owner</property>
+        <property>ec_github_owner</property>
         <required>1</required>
         <documentation>Repository owner.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
         <label>Repository Name:</label>
-        <property>repoName</property>
+        <property>ec_github_repo</property>
         <required>1</required>
         <documentation>Repository name.</documentation>
     </formElement>
     <formElement>
         <type>textarea</type>
         <label>Repository Description:</label>
-        <property>repoDescription</property>
+        <property>ec_github_description</property>
         <required>0</required>
         <documentation>Description for the repository.</documentation>
     </formElement>
     <formElement>
-        <type>entry</type>
-        <label>Repository Homepage URL:</label>
-        <property>repoHomepage</property>
-        <required>0</required>
-        <documentation>Homepage URL.</documentation>
-    </formElement>
-    <formElement>
         <type>checkbox</type>
         <label>Public?:</label>
-        <property>repoPublic</property>
+        <property>ec_github_public</property>
         <required>0</required>
         <documentation>Check to create a public repository.</documentation>
         <checkedValue>true</checkedValue>
         <uncheckedValue>false</uncheckedValue>
         <initiallyChecked>true</initiallyChecked>
+    </formElement>
+    <formElement>
+        <type>textarea</type>
+        <label>Teams:</label>
+        <property>ec_github_teams</property>
+        <required>0</required>
+        <documentation>Teams to add to the repository. E.g. "admins:ADMIN", "users:PUSH". Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.</documentation>
+    </formElement>
+    <formElement>
+        <type>textarea</type>
+        <label>Branch Protection Rules:</label>
+        <property>ec_github_branchProtectionRules</property>
+        <required>0</required>
+        <documentation>Rules to protect branches, e.g. master: reviewers = 1</documentation>
     </formElement>
 </editor>
