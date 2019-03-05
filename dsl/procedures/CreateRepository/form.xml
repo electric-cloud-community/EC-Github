@@ -27,28 +27,28 @@
     <formElement>
         <type>entry</type>
         <label>Owner:</label>
-        <property>ec_github_owner</property>
+        <property>github_owner</property>
         <required>1</required>
         <documentation>Repository owner, may be either user or organization.</documentation>
     </formElement>
     <formElement>
         <type>entry</type>
         <label>Repository Name:</label>
-        <property>ec_github_repo</property>
+        <property>github_repo</property>
         <required>1</required>
         <documentation>Repository name.</documentation>
     </formElement>
     <formElement>
         <type>textarea</type>
         <label>Repository Description:</label>
-        <property>ec_github_description</property>
+        <property>github_description</property>
         <required>0</required>
         <documentation>Description for the repository.</documentation>
     </formElement>
     <formElement>
         <type>checkbox</type>
         <label>Public?:</label>
-        <property>ec_github_public</property>
+        <property>github_public</property>
         <required>0</required>
         <documentation>Check to create a public repository.</documentation>
         <checkedValue>true</checkedValue>
@@ -58,7 +58,7 @@
     <formElement>
         <type>textarea</type>
         <label>Teams:</label>
-        <property>ec_github_teams</property>
+        <property>github_teams</property>
         <required>0</required>
         <documentation>Teams to add to the repository.
             E.g. "admins:ADMIN", "users:PUSH".
@@ -69,8 +69,26 @@
     <formElement>
         <type>textarea</type>
         <label>Branch Protection Rules:</label>
-        <property>ec_github_branchProtectionRules</property>
+        <property>github_branchProtectionRules</property>
         <required>0</required>
         <documentation>Rules to protect branches, e.g. master: reviewers = 1</documentation>
+    </formElement>
+    <formElement>
+        <type>checkbox</type>
+        <label>Add License?:</label>
+        <property>github_addLicense</property>
+        <required>0</required>
+        <checkedValue>true</checkedValue>
+        <uncheckedValue>false</uncheckedValue>
+        <documentation>If checked, a license will be added to the repository.</documentation>
+    </formElement>
+    <formElement>
+        <property>github_licenseFile</property>
+        <label>License File:</label>
+        <type>entry</type>
+        <required>0</required>
+        <dependsOn>github_addLicense</dependsOn>
+        <condition>${github_addLicense} == "true"</condition>
+        <documentation>Path to the LICENSE file on the filesystem. If the file does not exist, the procedure will throw an error.</documentation>
     </formElement>
 </editor>

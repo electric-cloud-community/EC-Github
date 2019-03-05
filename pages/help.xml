@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on February 14, 2019</p>
+    <p>Revised on March 05, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -170,6 +170,16 @@
                 <td>Rules to protect branches, e.g. master: reviewers = 1</td>
             </tr>
             
+            <tr>
+                <td >Add License?</td>
+                <td>If checked, a license will be added to the repository.</td>
+            </tr>
+            
+            <tr>
+                <td >License File</td>
+                <td>Path to the LICENSE file on the filesystem. If the file does not exist, the procedure will throw an error.</td>
+            </tr>
+            
             </tbody>
         </table>
         
@@ -182,6 +192,13 @@
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 1.1.0</h3>
+    <ul>
+        
+        <li>Create Repository procedure can now add a license file to the repository.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 1.0.0</h3>
     <ul>
