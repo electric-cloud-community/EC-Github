@@ -26,7 +26,7 @@ class EFPlugin {
         }
         Map retval = [:]
         parameters.each { formalParameterName ->
-            retval[formalParameterName.replaceAll('ec_github_', '')] = ef.getProperty(propertyName: formalParameterName)?.property?.value
+            retval[formalParameterName.replaceAll('github_', '')] = ef.getProperty(propertyName: formalParameterName)?.property?.value
         }
         return retval
     }
