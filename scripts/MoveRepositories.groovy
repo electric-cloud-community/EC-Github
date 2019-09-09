@@ -48,20 +48,18 @@ if (processedPluginsFile.exists()) {
 }
 
 
-def rootNode = new XmlSlurper().parse('http://downloads.electric-cloud.com/plugins/catalog.xml')
+//Unplug has issues
+//sharefile has issues
+//dsl samples has issues
+
+
 def exceptions = [
     'EC-Core'
 ]
-def plugins = []
-rootNode.plugin.each {
-    def supportLevel = it.ecSupportLevel
-    if (supportLevel != 10 && it.pluginName.toString().startsWith("EC-") && !(it.pluginName.toString() in exceptions)) {
-        println "${it.pluginKey} is a community plugin"
-        def pluginRepoName = it.pluginName.toString()
-        plugins << pluginRepoName
-
-    }
-}
+def plugins = [
+    'EC-Admin',
+    'EC-DslDeploy',
+]
 
 
 for (String pluginRepoName : plugins) {
@@ -80,18 +78,13 @@ for (String pluginRepoName : plugins) {
 }
 
 
-duplicateRepo(name, token, sourceOrg, destOrg, repoName)
-moveRepository(github, repoName, sourceOrg, destOrg)
-archiveRepo(name, token, sourceOrg, repoName)
-//makePublic(name, token, destOrg, repoName)
-
 
 def saveProcessedPlugins(List processedPlugins) {
     new File("processedPlugins.json").write(JsonOutput.toJson(processedPlugins))
 }
 
 def moveRepository(GitHub github, String repoName, String sourceOrg, String destOrg) {
-//    First, fork
+    //    First, fork
     GHOrganization dest = github.getOrganization(destOrg)
     GHRepository oldRepo = github.getOrganization(sourceOrg).getRepository(repoName)
     GHRepository forkedRepo = dest.getRepository(repoName)
@@ -110,7 +103,7 @@ def moveRepository(GitHub github, String repoName, String sourceOrg, String dest
             println "Cannot set description for ${repoName}: ${e.message}"
         }
     }
-//    add license
+    //    add license
 
     String license = new File('/Users/imago/Documents/ecloud/plugins/EC-Github/license').text
     try {
@@ -158,6 +151,14 @@ def moveRepository(GitHub github, String repoName, String sourceOrg, String dest
 
 
 def duplicateRepo(String user, String token, String sourceOrg, String destOrg, String repoName) {
+    GitHub github = GitHub.connect(user, token)
+    GHRepository source = github.getRepository("${sourceOrg}/${repoName}")
+    if (!source.private) {
+        println "Source repo is public: ${source.htmlUrl}"
+        GHRepository dest = source.forkTo(github.getOrganization(destOrg))
+        println "Forked public repository to ${destOrg}: ${dest.htmlUrl}"
+        return
+    }
     CredentialsProvider provider = new CredentialsProvider() {
         @Override
         boolean isInteractive() {
@@ -209,7 +210,7 @@ def duplicateRepo(String user, String token, String sourceOrg, String destOrg, S
         .setUri(new URIish("https://github.com/${destOrg}/${repoName}.git"))
         .call()
 
-    GitHub github = GitHub.connect(user, token)
+
     try {
         github.getOrganization(destOrg).createRepository(repoName).create()
     } catch (Throwable e) {

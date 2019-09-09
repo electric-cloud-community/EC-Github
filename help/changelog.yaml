@@ -2,3 +2,5 @@
   - First release.
 1.1.0:
   - Create Repository procedure can now add a license file to the repository.
+1.2.0:
+  - Create Release procedure has been added.

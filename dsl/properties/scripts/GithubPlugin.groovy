@@ -1,5 +1,6 @@
 import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
+import org.kohsuke.github.GHAsset
 import org.kohsuke.github.GHBranch
 import org.kohsuke.github.GHBranchProtection
 import org.kohsuke.github.GHBranchProtectionBuilder
@@ -13,10 +14,15 @@ import org.kohsuke.github.GHPerson
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHPullRequestReviewEvent
 import org.kohsuke.github.GHRef
+import org.kohsuke.github.GHRelease
+import org.kohsuke.github.GHReleaseBuilder
 import org.kohsuke.github.GHRepository
 import org.kohsuke.github.GHTeam
 import org.kohsuke.github.GHUser
 import org.kohsuke.github.GitHub
+
+import java.nio.file.Files
+import java.nio.file.Path
 
 @Grapes([
     @Grab('org.kohsuke:github-api:1.95')
@@ -68,6 +74,90 @@ class GithubPlugin {
             }
         }
         return request
+    }
+
+    def createRelease(String repoName, Map<String, File> assets, UpdateAction updateAction, String tagName, Map parameters) {
+        GHRepository repository = client.getRepository(repoName)
+
+        GHRelease release
+        try {
+            release = repository.getReleaseByTagName(tagName)
+            if (release) {
+                log.info "Found release: ${release.tagName}"
+            }
+        } catch(Throwable e) {
+            log.info "Cannot get release $tagName: $e.message"
+        }
+
+        if (updateAction == UpdateAction.NOOP && release) {
+            log.info "The release already exists, doing nothing"
+            return
+        }
+
+        if (updateAction == UpdateAction.FAIL && release) {
+            throw new RuntimeException("Failed to create release, the release already exists")
+        }
+
+        if (updateAction == UpdateAction.RECREATE) {
+            try {
+                if (release) {
+                    release.delete()
+                    log.info "Deleted release $release.tagName"
+                }
+                if (parameters.deleteOldTag == "true") {
+                    repository.refs.find { it.ref == "refs/tags/$tagName"}.delete()
+                    log.info "Deleted old tag $tagName"
+                }
+                else {
+                    log.warn "The old tag will not be deleted, it may cause inconsistency within the repository releases"
+                }
+            } catch (IOException e) {
+                log.debug "Failed to delete release $e.message"
+            }
+        }
+
+        GHReleaseBuilder builder = repository.createRelease(tagName)
+        if (parameters.commitish) {
+            builder.commitish(parameters.commitish as String)
+            log.info "Added commitish: ${parameters.commitish}"
+        }
+        if (parameters.body) {
+            builder.body(parameters.body as String)
+            log.info "Added body: $parameters.body"
+        }
+
+        if (parameters.prerelease) {
+            builder.prerelease(true)
+            log.info "Release is marked as a prerelease"
+        }
+        if (parameters.releaseName) {
+            builder.name(parameters.releaseName as String)
+            log.info "Release name will be $parameters.releaseName"
+        }
+
+        release = builder.create()
+        try {
+            assets.keySet().each { name ->
+                File asset = assets.get(name)
+                Path path = asset.toPath()
+                String mimeType = Files.probeContentType(path)
+                log.info "Asset $asset, type: $mimeType"
+                asset.withInputStream { stream ->
+                    GHAsset gasset = release.uploadAsset(name, stream, mimeType)
+                    log.info "Uploaded asset: ${gasset.name}"
+                    log.info "Download URL: ${gasset.browserDownloadUrl}"
+                }
+            }
+        } catch (Throwable e) {
+            log.info "Failed to upload asset: $e.message"
+            if (!parameters.keepPartly) {
+                release.delete()
+            }
+            log.info "Deleted invalid release"
+        }
+
+        log.info "Created release $release.htmlUrl"
+        return release
     }
 
     GHRepository createRepository(String ownerName, String repoName, Map parameters, String updateAction = 'update') {
@@ -254,6 +344,14 @@ class GithubPlugin {
         println "Pull Request is created: ${request.url}"
         println "Diff Url: ${request.diffUrl}"
         println "Mergeable: ${request.mergeable}"
+    }
+
+
+    enum UpdateAction {
+        RECREATE,
+        NOOP,
+        UPDATE,
+        FAIL
     }
 
 }
