@@ -12,14 +12,21 @@ def config = new EFPlugin().getConfiguration(parameters.config)
 GithubPlugin plugin = new GithubPlugin(config.userName, config.password)
 String updateAction = parameters.updateAction
 def assetsStr = parameters.assets
-Map assetsJson = new JsonSlurper().parseText(assetsStr) as Map
 Map<String, File> assets = [:]
-for (String name in assetsJson.keySet()) {
-    File f = new File(assetsJson.get(name))
-    if (!f.exists()) {
-        log.warn "The file $f.absolutePath does not exist"
+
+if (assetsStr) {
+    Map assetsJson = new JsonSlurper().parseText(assetsStr) as Map
+    for (String name in assetsJson.keySet()) {
+        String fileName = assetsJson.get(name)
+        File f = new File(fileName)
+        if (!f.isAbsolute()) {
+            f = new File(System.getProperty('user.dir'), fileName)
+        }
+        if (!f.exists()) {
+            throw new RuntimeException("The asset $f.absolutePath does not exist")
+        }
+        assets.put(name, f)
     }
-    assets.put(name, f)
 }
 GithubPlugin.UpdateAction upd = GithubPlugin.UpdateAction.valueOf(updateAction.toUpperCase())
 GHRelease release = plugin.createRelease(parameters.repoName as String, assets, upd, parameters.tagName as String, parameters)

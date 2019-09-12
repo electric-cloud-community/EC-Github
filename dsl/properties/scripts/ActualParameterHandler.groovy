@@ -34,6 +34,7 @@ class ActualParameterHandler {
             } else {
                 actualParameter = getActualParameter(args)
             }
+
             if(!actualParameter.actualParameterName.toString()) {
                 throw new RuntimeException("Empty actual parameter $paramName")
             }

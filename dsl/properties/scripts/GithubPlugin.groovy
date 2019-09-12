@@ -1,25 +1,6 @@
 import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
-import org.kohsuke.github.GHAsset
-import org.kohsuke.github.GHBranch
-import org.kohsuke.github.GHBranchProtection
-import org.kohsuke.github.GHBranchProtectionBuilder
-import org.kohsuke.github.GHContent
-import org.kohsuke.github.GHContentUpdateResponse
-import org.kohsuke.github.GHCreateRepositoryBuilder
-import org.kohsuke.github.GHIssueState
-import org.kohsuke.github.GHOrganization
-import org.kohsuke.github.GHPermissionType
-import org.kohsuke.github.GHPerson
-import org.kohsuke.github.GHPullRequest
-import org.kohsuke.github.GHPullRequestReviewEvent
-import org.kohsuke.github.GHRef
-import org.kohsuke.github.GHRelease
-import org.kohsuke.github.GHReleaseBuilder
-import org.kohsuke.github.GHRepository
-import org.kohsuke.github.GHTeam
-import org.kohsuke.github.GHUser
-import org.kohsuke.github.GitHub
+import org.kohsuke.github.*
 
 import java.nio.file.Files
 import java.nio.file.Path
@@ -76,6 +57,47 @@ class GithubPlugin {
         return request
     }
 
+
+    def downloadReleaseAsset(String repoName, String tagName, String assetName, String assetPath) {
+        GHRepository repository = client.getRepository(repoName)
+        GHRelease release = repository.getReleaseByTagName(tagName)
+        GHAsset asset = release.assets.find { it.name == assetName }
+        if (!asset) {
+            throw new RuntimeException("The asset $assetName does not exist in the release $release.tagName of $repoName")
+        }
+        // TODO auth
+
+        // wget -q --auth-no-challenge --header='Accept:application/octet-stream' \
+  // https://$TOKEN:@api.github.com/repos/$REPO/releases/assets/$asset_id \
+  //       -O $2
+
+        new File(new URI(asset.browserDownloadUrl)).withInputStream { is ->
+            File dest = new File(assetPath)
+            if (!dest.isAbsolute()) {
+                dest = new File(System.getProperty('user.dir'), assetPath)
+            }
+            log.info "Writing to file $dest.absolutePath"
+            dest.withOutputStream { os ->
+                os << is
+            }
+        }
+    }
+
+    def deleteTag(String repoName, String tagName) {
+        GHRepository repository = client.getRepository(repoName)
+        try {
+            GHRelease release = repository.getReleaseByTagName(tagName)
+            if (release) {
+                release.delete()
+                log.info "Deleted release $release.name: $release.tagName"
+            }
+        } catch (Throwable e) {
+            log.info "Failed to delete release: $e.message"
+        }
+        repository.refs.find { it.ref == "refs/tags/$tagName" }?.delete()
+        log.info "Deleted Tag $tagName"
+    }
+
     def createRelease(String repoName, Map<String, File> assets, UpdateAction updateAction, String tagName, Map parameters) {
         GHRepository repository = client.getRepository(repoName)
 
@@ -85,7 +107,7 @@ class GithubPlugin {
             if (release) {
                 log.info "Found release: ${release.tagName}"
             }
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             log.info "Cannot get release $tagName: $e.message"
         }
 
@@ -105,10 +127,9 @@ class GithubPlugin {
                     log.info "Deleted release $release.tagName"
                 }
                 if (parameters.deleteOldTag == "true") {
-                    repository.refs.find { it.ref == "refs/tags/$tagName"}.delete()
+                    repository.refs.find { it.ref == "refs/tags/$tagName" }.delete()
                     log.info "Deleted old tag $tagName"
-                }
-                else {
+                } else {
                     log.warn "The old tag will not be deleted, it may cause inconsistency within the repository releases"
                 }
             } catch (IOException e) {
@@ -152,6 +173,7 @@ class GithubPlugin {
             log.info "Failed to upload asset: $e.message"
             if (!parameters.keepPartly) {
                 release.delete()
+                repository.refs.find { it.ref == "refs/tags/$release.tagName" }.delete()
             }
             log.info "Deleted invalid release"
         }

@@ -22,6 +22,10 @@ def stepsWithAttachedCredentials = [
 		[
 			procedureName: 'Create Release',
 			stepName: 'Create Release'
+		],
+		[
+			procedureName: 'Delete Release',
+			stepName: 'Delete Release'
 		]
 	]
 // ** end steps with attached credentials
