@@ -1,52 +1,44 @@
 <!--
-
-     Copyright 2016 Electric Cloud, Inc.
-
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-
-         http://www.apache.org/licenses/LICENSE-2.0
-
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
-
+    This form is generated automatically from the parameters pluginspec.
+    Please not not edit this file manually as it will be regenerated.
 -->
 <editor>
-    <formElement>
-        <type>entry</type>
-        <label>Configuration:</label>
-        <property>config</property>
-        <configuration>1</configuration>
-        <required>1</required>
-        <documentation>Unique name for the plugin configuration.</documentation>
-    </formElement>
-    <formElement>
-        <type>entry</type>
-        <label>Repository Name:</label>
-        <property>repoName</property>
-        <required>1</required>
-        <documentation>Repository name, in form owner/repo.</documentation>
-    </formElement>
-    <formElement>
-        <type>entry</type>
-        <label>Tag Name:</label>
-        <required>1</required>
-        <property>tagName</property>
-        <documentation>Tag name to delete. The release will be deleted as well.</documentation>
-    </formElement>
-    <formElement>
-        <type>entry</type>
-        <label>Asset Name</label>
-        <property>assetName</property>
-        <required>1</required>
-        <documentation>The asset name to download.</documentation>
-    </formElement>
-    <formElement>
-        <type>entry</type>
-        <
-    </formElement>
+  <help>/commander/pages/@PLUGIN_NAME@/help?s=Administration&amp;ss=Plugins#DownloadReleaseAsset</help>
+  <formElement>
+    <type>entry</type>
+    <property>config</property>
+    <configuration>1</configuration>
+    <propertyReference>/plugins/@PLUGIN_NAME@/project/ec_plugin_cfgs</propertyReference>
+    <required>1</required>
+    <documentation>Previously defined configuration for the plugin</documentation>
+    <label>Configuration Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>repoName</property>
+    <required>1</required>
+    <documentation>Repository name, in form owner/repo.</documentation>
+    <label>Repository Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>tagName</property>
+    <required>1</required>
+    <documentation>Tag name for the release</documentation>
+    <label>Tag Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>assetName</property>
+    <required>1</required>
+    <documentation>Asset name for thhe downloading.</documentation>
+    <label>Asset Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>assetPath</property>
+    <required>0</required>
+    <documentation>Destination path for the downloaded asset.</documentation>
+    <label>Asset Path:</label>
+  </formElement>
 </editor>

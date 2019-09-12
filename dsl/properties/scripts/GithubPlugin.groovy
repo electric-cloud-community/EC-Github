@@ -11,10 +11,12 @@ import java.nio.file.Path
 @Slf4j
 class GithubPlugin {
     GitHub client
+    String password
 
     final String LICENSE = 'LICENSE'
 
     def GithubPlugin(String username, String password) {
+        this.password = password
         client = GitHub.connect(username, password)
     }
 
@@ -65,22 +67,28 @@ class GithubPlugin {
         if (!asset) {
             throw new RuntimeException("The asset $assetName does not exist in the release $release.tagName of $repoName")
         }
-        // TODO auth
-
-        // wget -q --auth-no-challenge --header='Accept:application/octet-stream' \
-  // https://$TOKEN:@api.github.com/repos/$REPO/releases/assets/$asset_id \
-  //       -O $2
-
-        new File(new URI(asset.browserDownloadUrl)).withInputStream { is ->
-            File dest = new File(assetPath)
-            if (!dest.isAbsolute()) {
-                dest = new File(System.getProperty('user.dir'), assetPath)
-            }
-            log.info "Writing to file $dest.absolutePath"
-            dest.withOutputStream { os ->
-                os << is
-            }
+        log.info "Found asset: $asset.browserDownloadUrl"
+        if (!assetPath) {
+            assetPath = asset.name
         }
+        File dest = new File(assetPath)
+        if (!dest.isAbsolute()) {
+            dest = new File(System.getProperty('user.dir'), assetPath)
+        }
+        log.info "Writing to file $dest.absolutePath"
+
+        String url = "https://api.github.com/repos/$repoName/releases/assets/$asset.id"
+        String basic = ":${password}".bytes.encodeBase64()
+        byte[] bytes = new URL(url).getBytes(
+            requestProperties: [Accept: 'application/octet-stream',
+            authorization: "Basic $basic"]
+        )
+        log.info "Received the asset content, size ${bytes.size()}"
+
+        dest.withOutputStream { os ->
+            os.write(bytes)
+        }
+        log.info "Wrote $dest.absolutePath"
     }
 
     def deleteTag(String repoName, String tagName) {
@@ -127,7 +135,7 @@ class GithubPlugin {
                     log.info "Deleted release $release.tagName"
                 }
                 if (parameters.deleteOldTag == "true") {
-                    repository.refs.find { it.ref == "refs/tags/$tagName" }.delete()
+                    repository.refs.find { it.ref == "refs/tags/$tagName" }?.delete()
                     log.info "Deleted old tag $tagName"
                 } else {
                     log.warn "The old tag will not be deleted, it may cause inconsistency within the repository releases"

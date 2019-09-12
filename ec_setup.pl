@@ -1,3 +1,7 @@
+
+## === ec_setup starts ===
+# This is auto-generated ec_setup file provided for you by ecpdf utility <3
+# Please do not edit this code manually, if you need to write your own code, please add it in the end of this file
 use Cwd;
 use File::Spec;
 use POSIX;
@@ -9,7 +13,6 @@ use Digest::MD5 qw(md5_hex);
 my $dir = getcwd;
 my $logfile ="";
 my $pluginDir;
-
 
 if ( defined $ENV{QUERY_STRING} ) {    # Promotion through UI
     $pluginDir = $ENV{COMMANDER_PLUGINS} . "/$pluginName";
@@ -29,7 +32,6 @@ $logfile .= "Current directory: $dir\n";
 # Evaluate promote.groovy or demote.groovy based on whether plugin is being promoted or demoted ($promoteAction)
 local $/ = undef;
 
-
 my $demoteDsl = q{
 # demote.groovy placeholder
 };
@@ -37,7 +39,6 @@ my $demoteDsl = q{
 my $promoteDsl = q{
 # promote.groovy placeholder
 };
-
 
 my $dsl;
 if ($promoteAction eq 'promote') {
@@ -61,8 +62,8 @@ my $dslReponse = $commander->evalDsl(
     },
 );
 
-
 $logfile .= $dslReponse->findnodes_as_string("/");
+warn $logfile;
 my $errorMessage = $commander->getError();
 
 if ( !$errorMessage ) {
@@ -143,9 +144,11 @@ if ( !$errorMessage ) {
     }
 }
 
-
 # Create output property for plugin setup debug logs
 my $nowString = localtime;
 $commander->setProperty( "/plugins/$pluginName/project/logs/$nowString", { value => $logfile } );
 
 die $errorMessage unless !$errorMessage;
+
+# Please do not remove the line below, it marks the auto-generated code and is used by the ecpdf tool
+## === ec_setup ends, checksum: 67063a7039dc062ff9e1da5eeae95985 ===

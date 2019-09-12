@@ -32,4 +32,3 @@ GithubPlugin.UpdateAction upd = GithubPlugin.UpdateAction.valueOf(updateAction.t
 GHRelease release = plugin.createRelease(parameters.repoName as String, assets, upd, parameters.tagName as String, parameters)
 efPlugin.setProperty_1("/myJob/report-urls/Release $release.tagName", release.htmlUrl.toString())
 efPlugin.setPipelineSummaryLink("GitHub Release ${release.owner.fullName.replaceAll('/', '-')}: ${release.tagName}" , "Release ${release.tagName}", release.htmlUrl.toString())
-

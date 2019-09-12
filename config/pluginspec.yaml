@@ -1,0 +1,190 @@
+pluginName: EC-Github
+version: 2.0.0
+description: CloudBees Flow integration for Github API
+author: Polina
+authorUrl: pshubina@cloudbees.com
+
+
+configuration:
+
+#  checkConnection: true
+#  rest:
+#    defaultEndpointValue: 'https://api.github.com'
+#    checkConnectionUri: '/user'
+#    endpointDescription: 'Endpoint to connect to. By default Github API endpoint.'
+#    authSchemes:
+#      basic:
+#        userNameLabel: Username to connect to Github
+#        passwordLabel: Password to connect to Github
+#      bearer:
+#        passwordLabel: Bearer token to connect to Github API.
+#  hasDebugLevel: true
+
+  parameters:
+    - name: credential
+      required: true
+      label: Credentials to Connect
+      type: credential
+
+
+procedures:
+  - name: Create Repository
+    description: Creates a GitHub Repository
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: owner
+        label: Owner
+        type: entry
+        required: true
+        documentation: Repository owner, may be either user or organization.
+      - name: repo
+        label: Repository Name
+        required: true
+        documentation: Repository name.
+        type: entry
+      - name: description
+        label: Repository Description
+        type: textarea
+        documentation: Description for the repository.
+      - name: public
+        label: Public?
+        type: checkbox
+        documentation: Check to create a public repository.
+        checkedValue: true
+        uncheckedValue: false
+        initiallyChecked: true
+      - name: teams
+        label: Teams
+        type: textarea
+        documentation: |
+          Teams to add to the repository.
+          E.g. "admins:ADMIN", "users:PUSH".
+          Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
+          Teams are applicable to the organization only.
+      - name: branchProtectionRules
+        label: Branch Protection Rules
+        type: textarea
+        documentation: |
+          Rules to protect branches, e.g. master: reviewers = 1
+      - name: addLicense
+        type: checkbox
+        label: Add License?
+        documentation: If checked, a license will be added to the repository.
+        checkedValue: true
+        uncheckedValue: false
+      - name: licenseFile
+        label: License File
+        dependsOn: github_addLicense
+        type: entry
+        condition: ${github_addLicense} == "true"
+        documentation: Path to the LICENSE file on the filesystem. If the file does not exist, the procedure will throw an error.
+
+  - name: Delete Release
+    description: Deletes a tag and an attached release from Github
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+        type: entry
+      - name: tagName
+        label: Tag Name
+        type: entry
+        documentation: Tag name to delete. The release will be deleted as well.
+        required: true
+
+  - name: Download Release Asset
+    description: Downloads the specified release asset from Github.
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+
+      - name: tagName
+        required: true
+        documentation: Tag name for the release
+        label: Tag Name
+        type: entry
+
+      - name: assetName
+        required: true
+        documentation: Asset name for thhe downloading.
+        label: Asset Name
+        type: entry
+
+      - name: assetPath
+        required: false
+        documentation: Destination path for the downloaded asset.
+        label: Asset Path
+        type: entry
+
+
+  - name: Create Release
+    description: This procedure can create a new Github Release or update an existing one.
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+
+      - name: updateAction
+        type: radio
+        required: true
+        documentation: Choose update action - what to do if the release already exists.
+        options:
+          - name: Do Nothing
+            value: noop
+          - name: Recreate
+            value: recreate
+          - name: Fail
+            value: fail
+
+      - name: releaseName
+        label: Release Name
+        documentation: The name for the release.
+        type: entry
+
+      - name: tagName
+        required: true
+        documentation: Tag name for the release
+        label: Tag Name
+        type: entry
+
+      - name: commitish
+        label: Source Commit
+        documentation: The commit to create a tag from
+        type: entry
+
+      - name: body
+        label: Release Body
+        documentation: Description for the release.
+        type: textarea
+      - name: assets
+        label: Release Assets
+        documentation: |
+          Release assets in form {"name": "path/to/file"}
+      - name: prerelease
+        label: Prerelease?
+        documentation: If checked, the release will be marked as a prerelease
+        type: checkbox
+        checkedValue: true
+        uncheckedValue: false
+
+      - name: deleteOldTag
+        type: checkbox
+        dependsOn: updateAction
+        condition: ${updateAction} == 'recreate'
+        label: Delete Old Tag?
+        documentation: If checked, the old tag associated with the old release will be deleted.
+        checkedValue: true
+        uncheckedValue: false
