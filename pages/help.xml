@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on September 09, 2019</p>
+    <p>Revised on September 17, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -43,6 +43,12 @@
         
 
         <li><a href="#CreateRepository">Create Repository</a></li>
+        
+
+        <li><a href="#DeleteRelease">Delete Release</a></li>
+        
+
+        <li><a href="#DownloadReleaseAsset">Download Release Asset</a></li>
         
     </ul>
 
@@ -108,22 +114,22 @@
             
             <tr>
                 
-                    <td class="required">Configuration</td>
-                    <td>Unique name for the plugin configuration.</td>
+                    <td class="required">Configuration Name</td>
+                    <td>Unique name for the configuration</td>
                 
             </tr>
             
             <tr>
                 
                     <td >Description</td>
-                    <td>Description for the plugin configuration.</td>
+                    <td>Configuration description</td>
                 
             </tr>
             
             <tr>
                 
-                    <td class="required">Credential</td>
-                    <td>Credentials to connect</td>
+                    <td class="required">Credentials to Connect</td>
+                    <td></td>
                 
             </tr>
             
@@ -144,7 +150,7 @@
         <h2>Create Release</h2>
         
         
-        <p>Creates a release on Github</p>
+        <p>This procedure can create a new Github Release or update an existing one.</p>
         
         
         <h3>Create Release Parameters</h3>
@@ -159,8 +165,8 @@
             
             <tr>
                 
-                <td class="required">Configuration</td>
-                <td>Unique name for the plugin configuration.</td>
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
                 
             </tr>
             
@@ -173,7 +179,7 @@
             
             <tr>
                 
-                <td class="required">Update Action</td>
+                <td class="required"></td>
                 <td>Choose update action - what to do if the release already exists.</td>
                 
             </tr>
@@ -195,28 +201,29 @@
             <tr>
                 
                 <td >Source Commit</td>
-                <td>The commit to create a tag from.</td>
+                <td>The commit to create a tag from</td>
                 
             </tr>
             
             <tr>
                 
                 <td >Release Body</td>
-                <td>Description for the release</td>
-                
-            </tr>
-            
-            <tr>
-                
-                <td >Prerelease?</td>
-                <td>Check to create pre-release.</td>
+                <td>Description for the release.</td>
                 
             </tr>
             
             <tr>
                 
                 <td >Release Assets</td>
-                <td>Release assets in form {"name": "path/to/file"}</td>
+                <td>Release assets in form {"name": "path/to/file"}
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Prerelease?</td>
+                <td>If checked, the release will be marked as a prerelease</td>
                 
             </tr>
             
@@ -230,6 +237,29 @@
             </tbody>
         </table>
 
+        
+        <h4>Output Parameters</h4>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>htmlUrl</td>
+                <td>HTML URL for the Github Release</td>
+            </tr>
+            
+            <tr>
+                <td>id</td>
+                <td>ID for the created release</td>
+            </tr>
+            
+            </tbody>
+        </table>
         
 
         
@@ -255,8 +285,8 @@
             
             <tr>
                 
-                <td class="required">Configuration</td>
-                <td>Unique name for the plugin configuration.</td>
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
                 
             </tr>
             
@@ -292,17 +322,18 @@
                 
                 <td >Teams</td>
                 <td>Teams to add to the repository.
-            E.g. "admins:ADMIN", "users:PUSH".
-            Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
-            Teams are applicable to the organization only.
-        </td>
+E.g. "admins:ADMIN", "users:PUSH".
+Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
+Teams are applicable to the organization only.
+</td>
                 
             </tr>
             
             <tr>
                 
                 <td >Branch Protection Rules</td>
-                <td>Rules to protect branches, e.g. master: reviewers = 1</td>
+                <td>Rules to protect branches, e.g. master: reviewers = 1
+</td>
                 
             </tr>
             
@@ -317,6 +348,114 @@
                 
                 <td >License File</td>
                 <td>Path to the LICENSE file on the filesystem. If the file does not exist, the procedure will throw an error.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
+    <div id="DeleteRelease">
+        <h2>Delete Release</h2>
+        
+        
+        <p>Deletes a tag and an attached release from Github</p>
+        
+        
+        <h3>Delete Release Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Tag Name</td>
+                <td>Tag name to delete. The release will be deleted as well.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
+    <div id="DownloadReleaseAsset">
+        <h2>Download Release Asset</h2>
+        
+        
+        <p>Downloads the specified release asset from Github.</p>
+        
+        
+        <h3>Download Release Asset Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Tag Name</td>
+                <td>Tag name for the release</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Asset Name</td>
+                <td>Asset name for thhe downloading.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Asset Path</td>
+                <td>Destination path for the downloaded asset.</td>
                 
             </tr>
             
