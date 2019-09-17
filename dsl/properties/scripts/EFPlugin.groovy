@@ -2,6 +2,12 @@ import com.electriccloud.client.groovy.ElectricFlow
 
 class EFPlugin {
     ElectricFlow ef = new ElectricFlow()
+    ActualParameterHandler actualParameterHandler = new ActualParameterHandler()
+
+
+    EFPlugin() {
+        ef = new ElectricFlow()
+    }
 
     def getConfiguration(configName) {
         Map configuration = ef.getProperties(path: '/projects/@PLUGIN_NAME@/ec_plugin_cfgs/' + configName)?.propertySheet?.property?.collectEntries {
@@ -26,63 +32,20 @@ class EFPlugin {
         }
         Map retval = [:]
         parameters.each { formalParameterName ->
-            retval[formalParameterName.replaceAll('github_', '')] = ef.getProperty(propertyName: formalParameterName)?.property?.value
+            retval[formalParameterName] = actualParameterHandler.getParameterValue(formalParameterName)
         }
+
+        println "Actual parameters: ${retval}"
         return retval
     }
 
-    def getParameterValue(String paramName) {
-        String retval
+
+    def setPipelineSummaryLink(String summaryName, String name, String link) {
+        String html = "<html><a href=\"$link\" target=\"_blank\">$name</a></html>"
         try {
-            String jobStepId = System.getenv('COMMANDER_JOBSTEPID')
-            assert jobStepId
-            def actualParameter = ef.getActualParameter(actualParameterName: paramName,
-                                                        jobStepId: jobStepId)
-            println actualParameter
-            if (actualParameter.actualParameterName) {
-                retval = actualParameter.value
-            }
-        } catch (Throwable e) {
-            println e.message
+            setProperty_1("/myPipelineStageRuntime/ec_summary/$summaryName", html)
+        } catch(Throwable ignore) {
+            println ignore.message
         }
-        if (retval != null) {
-            return retval
-        }
-
-        try {
-            String jobId = ef.getProperty(propertyName: '/myJob/id')?.property?.value
-            assert jobId
-            def actualParameter = ef.getActualParameter(actualParameterName: paramName,
-                                                        jobId: jobId)
-            println actualParameter
-            if (actualParameter.actualParameterName) {
-                retval = actualParameter.value
-            }
-        } catch (Throwable e) {
-            println e.message
-        }
-
-        if (retval != null) {
-            return retval
-        }
-
-        try {
-            String parentJobStepId = ef.getProperty(propertyName: '/myJobStep/parent/id')?.property?.value
-            assert parentJobStepId
-            def actualParameter = ef.getActualParameter(actualParameterName: paramName,
-                                                        jobStepId: parentJobStepId)
-            println actualParameter
-            if (actualParameter.actualParameterName) {
-                retval = actualParameter.value
-            }
-        } catch (Throwable e) {
-            println e.message
-        }
-        if (retval != null) {
-            return retval
-        }
-
-        throw new RuntimeException("Cannot find parameter $paramName")
-
     }
 }

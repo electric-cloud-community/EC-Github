@@ -14,43 +14,67 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on March 05, 2019</p>
+    <p>Revised on September 17, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
     <ul>
+    
     <li><a href="#overview">Overview</a></li>
     
     
-
     
-
+    
+    
+    
+    
     
     <li><a href="#CreateConfiguration">Plugin Configuration</a></li>
     
 
+    
     <li><a href="#procedures">Plugin Procedures</a></li>
     
 
     <ul>
         
 
+        <li><a href="#CreateRelease">Create Release</a></li>
+        
+
         <li><a href="#CreateRepository">Create Repository</a></li>
+        
+
+        <li><a href="#DeleteRelease">Delete Release</a></li>
+        
+
+        <li><a href="#DownloadReleaseAsset">Download Release Asset</a></li>
         
     </ul>
 
+    
+
+    
+    
+    
+    
     
     
     
     <li><a href="#releaseNotes">Release Notes</a></li>
 </ul>
+
+    
     <h1>Overview</h1>
     <p><p>This plugin integates with Github API.</p>
 </p>
     
     
-
     
+    
+    
+    
+
     <!--TODO custom blocks-->
 
     
@@ -69,14 +93,14 @@
         </p>
 
         <h3>Creating Plugin Configurations</h3>
-        <p>To create plugin configurations in ElectricFlow,
+        <p>To create plugin configurations in CloudBees Flow,
             do these steps:</p>
 
         <li>Go to <b>Administration</b> &gt; <b>Plugins</b> to open the Plugin Manager.</li>
         <li>Find the @PLUGIN_NAME@ row.</li>
         <li>Click <b>Configure</b> to open the
              Configurations page.</li>
-        <li>Click <b>Create Configuration</b>.</li>
+        <li>Click <b>Create Configuration</b> as per the description of parameters below.</li>
         
         Configuration Parameters
         <table class="grid">
@@ -89,18 +113,24 @@
             <tbody>
             
             <tr>
-                <td class="required">Configuration</td>
-                <td>Unique name for the plugin configuration.</td>
+                
+                    <td class="required">Configuration Name</td>
+                    <td>Unique name for the configuration</td>
+                
             </tr>
             
             <tr>
-                <td >Description</td>
-                <td>Description for the plugin configuration.</td>
+                
+                    <td >Description</td>
+                    <td>Configuration description</td>
+                
             </tr>
             
             <tr>
-                <td class="required">Credential</td>
-                <td>Credentials to connect</td>
+                
+                    <td class="required">Credentials to Connect</td>
+                    <td></td>
+                
             </tr>
             
             </tbody>
@@ -109,9 +139,131 @@
     </div>
     
 
+    
+
     <h1 id="procedures">Plugin Procedures</h1>
     
     
+
+    
+    <div id="CreateRelease">
+        <h2>Create Release</h2>
+        
+        
+        <p>This procedure can create a new Github Release or update an existing one.</p>
+        
+        
+        <h3>Create Release Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required"></td>
+                <td>Choose update action - what to do if the release already exists.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Release Name</td>
+                <td>The name for the release.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Tag Name</td>
+                <td>Tag name for the release</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Source Commit</td>
+                <td>The commit to create a tag from</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Release Body</td>
+                <td>Description for the release.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Release Assets</td>
+                <td>Release assets in form {"name": "path/to/file"}
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Prerelease?</td>
+                <td>If checked, the release will be marked as a prerelease</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Delete Old Tag?</td>
+                <td>If checked, the old tag associated with the old release will be deleted.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+        <h4>Output Parameters</h4>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>htmlUrl</td>
+                <td>HTML URL for the Github Release</td>
+            </tr>
+            
+            <tr>
+                <td>id</td>
+                <td>ID for the created release</td>
+            </tr>
+            
+            </tbody>
+        </table>
+        
+
+        
+    </div>
 
     
     <div id="CreateRepository">
@@ -132,56 +284,186 @@
             <tbody>
             
             <tr>
-                <td class="required">Configuration</td>
-                <td>Unique name for the plugin configuration.</td>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
             </tr>
             
             <tr>
+                
                 <td class="required">Owner</td>
                 <td>Repository owner, may be either user or organization.</td>
+                
             </tr>
             
             <tr>
+                
                 <td class="required">Repository Name</td>
                 <td>Repository name.</td>
+                
             </tr>
             
             <tr>
+                
                 <td >Repository Description</td>
                 <td>Description for the repository.</td>
+                
             </tr>
             
             <tr>
+                
                 <td >Public?</td>
                 <td>Check to create a public repository.</td>
+                
             </tr>
             
             <tr>
+                
                 <td >Teams</td>
                 <td>Teams to add to the repository.
-            E.g. "admins:ADMIN", "users:PUSH".
-            Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
-            Teams are applicable to the organization only.
-        </td>
+E.g. "admins:ADMIN", "users:PUSH".
+Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
+Teams are applicable to the organization only.
+</td>
+                
             </tr>
             
             <tr>
+                
                 <td >Branch Protection Rules</td>
-                <td>Rules to protect branches, e.g. master: reviewers = 1</td>
+                <td>Rules to protect branches, e.g. master: reviewers = 1
+</td>
+                
             </tr>
             
             <tr>
+                
                 <td >Add License?</td>
                 <td>If checked, a license will be added to the repository.</td>
+                
             </tr>
             
             <tr>
+                
                 <td >License File</td>
                 <td>Path to the LICENSE file on the filesystem. If the file does not exist, the procedure will throw an error.</td>
+                
             </tr>
             
             </tbody>
         </table>
+
+        
+
+        
+    </div>
+
+    
+    <div id="DeleteRelease">
+        <h2>Delete Release</h2>
+        
+        
+        <p>Deletes a tag and an attached release from Github</p>
+        
+        
+        <h3>Delete Release Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Tag Name</td>
+                <td>Tag name to delete. The release will be deleted as well.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
+    <div id="DownloadReleaseAsset">
+        <h2>Download Release Asset</h2>
+        
+        
+        <p>Downloads the specified release asset from Github.</p>
+        
+        
+        <h3>Download Release Asset Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Tag Name</td>
+                <td>Tag name for the release</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Asset Name</td>
+                <td>Asset name for thhe downloading.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Asset Path</td>
+                <td>Destination path for the downloaded asset.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
         
     </div>
 
@@ -191,7 +473,21 @@
 
     
 
+    
+
+    
+    
+    
+    
+
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 1.2.0</h3>
+    <ul>
+        
+        <li>Create Release procedure has been added.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 1.1.0</h3>
     <ul>

@@ -1,2 +1,3 @@
-$[/myProject/scripts/GithubPlugin]
-$[/myProject/scripts/EFPlugin]
+$[/myProject/scripts/GithubPlugin.groovy]
+$[/myProject/scripts/ActualParameterHandler.groovy]
+$[/myProject/scripts/EFPlugin.groovy]
