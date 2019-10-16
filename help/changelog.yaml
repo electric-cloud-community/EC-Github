@@ -4,3 +4,8 @@
   - Create Repository procedure can now add a license file to the repository.
 1.2.0:
   - Create Release procedure has been added.
+2.0.0:
+  - Multiple new procedures have been added.
+2.1.0:
+  - Get Files procedure has been added
+  - Upload Files procedure has been added

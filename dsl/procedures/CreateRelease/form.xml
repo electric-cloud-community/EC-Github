@@ -37,6 +37,10 @@
       <name>Fail</name>
       <value>fail</value>
     </option>
+    <option>
+      <name>Update</name>
+      <value>update</value>
+    </option>
   </formElement>
   <formElement>
     <type>entry</type>

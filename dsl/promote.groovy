@@ -1,5 +1,5 @@
 
-// === promote_autogen starts ===
+// DO NOT EDIT THIS BLOCK === promote_autogen starts ===
 import groovy.transform.BaseScript
 import com.electriccloud.commander.dsl.util.BasePlugin
 
@@ -19,6 +19,8 @@ def stepsWithAttachedCredentials = [
     [procedureName: "Create Repository", stepName: "Create Repository"],
     [procedureName: "Delete Release", stepName: "Delete Release"],
     [procedureName: "Download Release Asset", stepName: "Download Release Asset"],
+    [procedureName: "Upload Files", stepName: "Upload Files"],
+    [procedureName: "Get Files", stepName: "Get Files"],
     [procedureName: "Create Release", stepName: "Create Release"],
 
 ]
@@ -45,9 +47,8 @@ project pluginName, {
 
 def retainedProperties = []
 
-retainedProperties << ''
 upgrade(upgradeAction, pluginName, otherPluginName, stepsWithAttachedCredentials, 'ec_plugin_cfgs', retainedProperties)
-// === promote_autogen ends, checksum: 4092ce95202106ca90addbbdd930a7e9 ===
+// DO NOT EDIT THIS BLOCK === promote_autogen ends, checksum: d034622082501adb2cae068305a4487e ===
 // Do not edit the code above this line
 
 project pluginName, {

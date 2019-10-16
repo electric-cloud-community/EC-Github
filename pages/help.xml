@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on September 17, 2019</p>
+    <p>Revised on October 16, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -49,6 +49,12 @@
         
 
         <li><a href="#DownloadReleaseAsset">Download Release Asset</a></li>
+        
+
+        <li><a href="#GetFiles">Get Files</a></li>
+        
+
+        <li><a href="#UploadFiles">Upload Files</a></li>
         
     </ul>
 
@@ -237,29 +243,6 @@
             </tbody>
         </table>
 
-        
-        <h4>Output Parameters</h4>
-        <table class="grid">
-            <thead>
-            <tr>
-                <th>Parameter</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            
-            <tr>
-                <td>htmlUrl</td>
-                <td>HTML URL for the Github Release</td>
-            </tr>
-            
-            <tr>
-                <td>id</td>
-                <td>ID for the created release</td>
-            </tr>
-            
-            </tbody>
-        </table>
         
 
         
@@ -468,6 +451,169 @@ Teams are applicable to the organization only.
     </div>
 
     
+    <div id="GetFiles">
+        <h2>Get Files</h2>
+        
+        
+        <p>This procedure fetches the content of the specified files and stores it in
+the filesystem or in the provided property
+</p>
+        
+        
+        <h3>Get Files Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Owner</td>
+                <td>The name of the user or organization which owns the repository</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>The name of the GH repository.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Files</td>
+                <td>The newline-separated list of paths to the files
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Folder to Save Files</td>
+                <td>The folder to save retrieved files, absolute or relative path</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Git Reference</td>
+                <td>Reference (branch, commit or tag to download file from)</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
+    <div id="UploadFiles">
+        <h2>Upload Files</h2>
+        
+        
+        <p>This procedure uploads the provided files into the provided repository
+</p>
+        
+        
+        <h3>Upload Files Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Owner</td>
+                <td>The name of the user or organization which owns the repository</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>The name of the GH repository.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Source Directory</td>
+                <td>The directory resembling the repository source.
+If not provided, the current directory will be used.
+The relative paths of the files will be used to provide the path in the repository.
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Mapping</td>
+                <td>A mapping in JSON form to provide the path to file in the repository, e.g.
+{'file': "my/file"} where file is the path to the file relative to the source directory.
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Files</td>
+                <td>A list of files relative to the source directory, newline-separated
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Branch</td>
+                <td>A branch name to commit files to.
+If not master, the branch will be created from the master branch.
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Create Pull Request?</td>
+                <td>If checked, a PR will be created for the updated files.
+</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
 
     
 
@@ -481,6 +627,22 @@ Teams are applicable to the organization only.
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 2.1.0</h3>
+    <ul>
+        
+        <li>Get Files procedure has been added</li>
+        
+        <li>Upload Files procedure has been added</li>
+        
+    </ul>
+    
+    <h3>@PLUGIN_KEY@ 2.0.0</h3>
+    <ul>
+        
+        <li>Multiple new procedures have been added.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 1.2.0</h3>
     <ul>

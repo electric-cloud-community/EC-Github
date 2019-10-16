@@ -1,8 +1,10 @@
-pluginName: EC-Github
-version: 2.0.0
-description: CloudBees Flow integration for Github API
-author: Polina
-authorUrl: pshubina@cloudbees.com
+pluginInfo:
+  pluginName: EC-Github
+  version: 2.1.0
+  description: CloudBees Flow integration for Github API
+  author: Polina
+  authorUrl: pshubina@cloudbees.com
+  category: Source Control
 
 
 configuration:
@@ -125,6 +127,91 @@ procedures:
         label: Asset Path
         type: entry
 
+  - name: Upload Files
+    description: |
+      This procedure uploads the provided files into the provided repository
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+     - name: ownerName
+       required: true
+       label: Repository Owner
+       type: entry
+       documentation: The name of the user or organization which owns the repository
+     - name: repoName
+       required: true
+       label: Repository Name
+       type: entry
+       documentation: The name of the GH repository.
+     - name: sourceDirectory
+       required: false
+       type: entry
+       label: Source Directory
+       documentation: |
+        The directory resembling the repository source.
+        If not provided, the current directory will be used.
+        The relative paths of the files will be used to provide the path in the repository.
+     - name: mapping
+       documentation: |
+         A mapping in JSON form to provide the path to file in the repository, e.g.
+         {'file': "my/file"} where file is the path to the file relative to the source directory.
+       type: textarea
+       label: Mapping
+     - name: files
+       label: Files
+       documentation: |
+         A list of files relative to the source directory, newline-separated
+       type: textarea
+     - name: branch
+       label: Branch
+       value: master
+       type: entry
+       documentation: |
+        A branch name to commit files to.
+        If not master, the branch will be created from the master branch.
+     - name: createPr
+       type: checkbox
+       label: Create Pull Request?
+       checkedValue: true
+       uncheckedValue: false
+       documentation: |
+         If checked, a PR will be created for the updated files.
+
+  - name: Get Files
+    description: |
+      This procedure fetches the content of the specified files and stores it in
+      the filesystem or in the provided property
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: ownerName
+        required: true
+        label: Repository Owner
+        type: entry
+        documentation: The name of the user or organization which owns the repository
+      - name: repoName
+        required: true
+        label: Repository Name
+        type: entry
+        documentation: The name of the GH repository.
+      - name: files
+        required: true
+        label: Files
+        documentation: |
+          The newline-separated list of paths to the files
+        type: textarea
+      - name: destinationFolder
+        required: false
+        value: files
+        label: Folder to Save Files
+        type: entry
+        documentation: The folder to save retrieved files, absolute or relative path
+      - name: ref
+        label: Git Reference
+        required: false
+        value: master
+        documentation: Reference (branch, commit or tag to download file from)
+
 
   - name: Create Release
     description: This procedure can create a new Github Release or update an existing one.
@@ -148,6 +235,8 @@ procedures:
             value: recreate
           - name: Fail
             value: fail
+          - name: Update
+            value: update
 
       - name: releaseName
         label: Release Name

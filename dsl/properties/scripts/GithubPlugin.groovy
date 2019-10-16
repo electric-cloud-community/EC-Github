@@ -80,8 +80,8 @@ class GithubPlugin {
         String url = "https://api.github.com/repos/$repoName/releases/assets/$asset.id"
         String basic = ":${password}".bytes.encodeBase64()
         byte[] bytes = new URL(url).getBytes(
-            requestProperties: [Accept: 'application/octet-stream',
-            authorization: "Basic $basic"]
+            requestProperties: [Accept       : 'application/octet-stream',
+                                authorization: "Basic $basic"]
         )
         log.info "Received the asset content, size ${bytes.size()}"
 
@@ -128,6 +128,23 @@ class GithubPlugin {
             throw new RuntimeException("Failed to create release, the release already exists")
         }
 
+        if (updateAction == UpdateAction.UPDATE && release) {
+            log.info "Updating existing release $release.tagName"
+            if (parameters.body) {
+                release.body = parameters.body
+            }
+            release.prerelease = parameters.prerelease == 'true'
+            release.prerelease = false
+            println release.prerelease
+
+            if (parameters.releaseName) {
+                release.name = parameters.releaseName
+            }
+            release.update()
+            log.info "Release $release.tagName has been updated"
+            return release
+        }
+
         if (updateAction == UpdateAction.RECREATE) {
             try {
                 if (release) {
@@ -155,7 +172,7 @@ class GithubPlugin {
             log.info "Added body: $parameters.body"
         }
 
-        if (parameters.prerelease) {
+        if (parameters.prerelease && parameters.prerelease == 'true') {
             builder.prerelease(true)
             log.info "Release is marked as a prerelease"
         }
@@ -188,6 +205,113 @@ class GithubPlugin {
 
         log.info "Created release $release.htmlUrl"
         return release
+    }
+
+    void downloadFiles(String ownerName, String repoName, List<String> files, String ref = 'master', String dest = '') {
+        GHRepository repo = client.getRepository("${ownerName}/${repoName}")
+        List<InputStream> f = []
+        File destination = new File(dest)
+        if (!destination.isAbsolute()) {
+            destination = new File(System.getProperty('user.dir'), destination.name)
+        }
+        log.info "Saving files to $destination.absolutePath"
+        for (String p in files) {
+            GHContent content = repo.getFileContent(p, ref)
+            if (content.type != 'file') {
+                throw new RuntimeException("Cannot procss file of type ${content.type}")
+            }
+            InputStream is = content.read()
+            File file = new File(destination, content.path)
+            file.parentFile.mkdirs()
+            file.withWriter {
+                it << is
+            }
+            log.info "Saved file $file.absolutePath"
+        }
+    }
+
+    List<GHCommit> uploadFiles(String repoName, String sourceDirectory,
+                               List<String> files,
+                               Map mapping = [:],
+                               String branch = 'master',
+                               String commitMessage = null) {
+        GHRepository repo = client.getRepository(repoName)
+        File source = new File(sourceDirectory)
+        if (!source.isAbsolute()) {
+            source = new File(System.getProperty('user.dir'), sourceDirectory)
+        }
+
+        try {
+            repo.getBranch(branch)
+            log.info "The branch $branch does exist"
+        }
+        catch (Throwable e) {
+            log.debug e.message
+            log.info "Creating a new branch $branch"
+            GHRef ref = repo.createRef("refs/heads/$branch", repo.getBranch('master').getSHA1())
+            log.info "Created branch " + ref.object.sha
+        }
+        List<GHCommit> commits = []
+
+        for (String fpath in files) {
+            File file = new File(source, fpath)
+            GHContentBuilder builder = repo.createContent()
+            log.info "Reading file $file.absolutePath"
+            byte[] b = file.bytes
+            log.info "Size: ${b.length}"
+            builder.content(b)
+            def rel = source.toPath().relativize(file.toPath()).toFile()
+            String path = mapping.get(rel) ?: rel
+            try {
+                GHContent existing = repo.getFileContent(path, branch)
+                builder.sha(existing.sha)
+                log.info "Updating existing file $path ($existing.sha)"
+            }
+            catch (Throwable e) {
+                log.debug e.message
+                log.info "Creating a new file $path"
+            }
+            builder.path(path)
+            builder.branch(branch)
+            String commit = commitMessage
+            if (!commit) {
+                commit = "[@PLUGIN_NAME@] updated file $rel"
+            }
+            builder.message(commit)
+            GHContentUpdateResponse response = builder.commit()
+            log.info "Committed file $rel to commit $response.commit.SHA1"
+            commits << response.commit
+        }
+        return commits
+    }
+
+
+    GHPullRequest createPullRequest(String repoName, String head, String base = 'master', String body = '', String title = '') {
+        GHRepository repo = client.getRepository(repoName)
+        if (!title) {
+            title = "Merging $head into $base"
+        }
+        if (!body) {
+            body = repo.getCommit(repo.getBranch(head).getSHA1()).commitShortInfo.message
+        }
+        GHPullRequest pr
+        try {
+            pr = repo.createPullRequest(title, head, base, body)
+            log.info "Created PR: ${pr.id}"
+        }
+        catch (Throwable e) {
+            pr = repo.listPullRequests().find {
+                it.base.ref == base &&
+                    it.head.ref == head
+            }
+            if (!pr) {
+                throw e
+            }
+            log.info "PR already exists: $pr.id"
+        }
+        log.info "Mergeable: ${pr.mergeable}"
+        log.info "Diff: ${pr.diffUrl.toString()}"
+        return pr
     }
 
     GHRepository createRepository(String ownerName, String repoName, Map parameters, String updateAction = 'update') {
@@ -368,13 +492,13 @@ class GithubPlugin {
     }
 
 
-    def createPullRequest(String owner, String repoName, String fromBranch, String toBranch, String title, String content = "") {
-        GHRepository repo = client.getRepository("${owner}/${repoName}")
-        GHPullRequest request = repo.createPullRequest(title, fromBranch, toBranch, content)
-        println "Pull Request is created: ${request.url}"
-        println "Diff Url: ${request.diffUrl}"
-        println "Mergeable: ${request.mergeable}"
-    }
+    // def createPullRequest(String owner, String repoName, String fromBranch, String toBranch, String title, String content = "") {
+    //     GHRepository repo = client.getRepository("${owner}/${repoName}")
+    //     GHPullRequest request = repo.createPullRequest(title, fromBranch, toBranch, content)
+    //     println "Pull Request is created: ${request.url}"
+    //     println "Diff Url: ${request.diffUrl}"
+    //     println "Mergeable: ${request.mergeable}"
+    // }
 
 
     enum UpdateAction {

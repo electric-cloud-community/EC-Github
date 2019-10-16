@@ -3,7 +3,7 @@
   <key>EC-Github</key>
   <label>EC-Github</label>
   <author>Polina</author>
-  <category>Utilities</category>
+  <category>Source Control</category>
   <description>CloudBees Flow integration for Github API</description>
   <configure>ec_config</configure>
   <version>2.0.0</version>
