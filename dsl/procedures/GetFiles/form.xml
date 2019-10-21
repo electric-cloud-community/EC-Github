@@ -41,7 +41,6 @@
     <required>0</required>
     <documentation>The folder to save retrieved files, absolute or relative path</documentation>
     <label>Folder to Save Files:</label>
-    <value>files</value>
   </formElement>
   <formElement>
     <type>entry</type>

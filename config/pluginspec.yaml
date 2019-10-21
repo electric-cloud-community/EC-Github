@@ -202,7 +202,6 @@ procedures:
         type: textarea
       - name: destinationFolder
         required: false
-        value: files
         label: Folder to Save Files
         type: entry
         documentation: The folder to save retrieved files, absolute or relative path
