@@ -9,3 +9,5 @@
 2.1.0:
   - Get Files procedure has been added
   - Upload Files procedure has been added
+2.1.1:
+  - Removed default value "files" from the destinationFolder parameter of the Get Files procedure.

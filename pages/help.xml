@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on October 16, 2019</p>
+    <p>Revised on October 21, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -627,6 +627,13 @@ If not master, the branch will be created from the master branch.
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 2.1.1</h3>
+    <ul>
+        
+        <li>Removed default value "files" from the destinationFolder parameter of the Get Files procedure.</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 2.1.0</h3>
     <ul>

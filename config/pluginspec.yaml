@@ -1,6 +1,6 @@
 pluginInfo:
   pluginName: EC-Github
-  version: 2.1.0
+  version: 2.1.1
   description: CloudBees Flow integration for Github API
   author: Polina
   authorUrl: pshubina@cloudbees.com
