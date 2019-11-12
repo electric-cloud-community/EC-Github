@@ -5,9 +5,9 @@ import org.kohsuke.github.*
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Grapes([
-    @Grab('org.kohsuke:github-api:1.95')
-])
+// @Grapes([
+//     @Grab('org.kohsuke:github-api:1.95')
+// ])
 @Slf4j
 class GithubPlugin {
     GitHub client
