@@ -59,6 +59,13 @@
     <userNameLabel>Username to connect to Github</userNameLabel>
   </formElement>
   <formElement>
+    <type>credential</type>
+    <property>credential</property>
+    <required>1</required>
+    <label>Credentials to Connect:</label>
+    <attachedAsParameterToStep>checkConnectionGeneric</attachedAsParameterToStep>
+  </formElement>
+  <formElement>
     <type>checkbox</type>
     <property>checkConnection</property>
     <documentation>If checked, a connection endpoint and credentials will be tested before save. The configuration will not be saved if the test fails.</documentation>

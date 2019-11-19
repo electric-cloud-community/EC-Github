@@ -22,6 +22,7 @@ def stepsWithAttachedCredentials = [
     [procedureName: "Upload Files", stepName: "Upload Files"],
     [procedureName: "Get Files", stepName: "Get Files"],
     [procedureName: "Set Commit Status", stepName: "Set Commit Status"],
+    [procedureName: "Get Commit", stepName: "Get Commit"],
     [procedureName: "Create Release", stepName: "Create Release"],
 
 ]
@@ -49,7 +50,7 @@ project pluginName, {
 def retainedProperties = []
 
 upgrade(upgradeAction, pluginName, otherPluginName, stepsWithAttachedCredentials, 'ec_plugin_cfgs', retainedProperties)
-// DO NOT EDIT THIS BLOCK === promote_autogen ends, checksum: 57a45fe5c92370a06d495434ecf44655 ===
+// DO NOT EDIT THIS BLOCK === promote_autogen ends, checksum: 5bf2104968ec8b2e13c74ba893abc62c ===
 // Do not edit the code above this line
 
 project pluginName, {

@@ -1,6 +1,6 @@
 // This procedure.dsl was generated automatically
 // DO NOT EDIT THIS BLOCK === procedure_autogen starts ===
-procedure 'Set Commit Status', description: '''Set status for a commit using its SHA''', {
+procedure 'Get Commit', description: '''This procedure retrieves a commit data for the specified SHA''', {
 
     // Handling binary dependencies
     step 'flowpdk-setup', {
@@ -11,9 +11,9 @@ procedure 'Set Commit Status', description: '''Set status for a commit using its
         ]
     }
 
-    step 'Set Commit Status', {
+    step 'Get Commit', {
         description = ''
-        command = new File(pluginDir, "dsl/procedures/SetCommitStatus/steps/SetCommitStatus.groovy").text
+        command = new File(pluginDir, "dsl/procedures/GetCommit/steps/GetCommit.groovy").text
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
@@ -21,7 +21,7 @@ procedure 'Set Commit Status', description: '''Set status for a commit using its
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 34b89e8cf6e87f148fa17629d9133d17 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: aebbb078774281cc039330f15443c293 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

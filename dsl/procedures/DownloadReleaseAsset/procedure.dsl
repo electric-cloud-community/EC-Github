@@ -14,15 +14,14 @@ procedure 'Download Release Asset', description: '''Downloads the specified rele
     step 'Download Release Asset', {
         description = ''
         command = new File(pluginDir, "dsl/procedures/DownloadReleaseAsset/steps/DownloadReleaseAsset.groovy").text
-        // TODO altered shell
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
         resourceName = '$[/myJob/flowpdkResource]'
 
-        postProcessor = ''''''
+        postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 0d77569231ba974ec5e767d1644b4efc ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: af3eb63253108256deefec9bc552e592 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

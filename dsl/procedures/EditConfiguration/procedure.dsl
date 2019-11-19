@@ -7,7 +7,8 @@ procedure 'EditConfiguration', description: 'Checks connection for the changed c
         command: new File(pluginDir, "dsl/procedures/CreateConfiguration/steps/checkConnectionGeneric.groovy").text,
         errorHandling: 'abortProcedure',
         shell: 'ec-groovy',
+        postProcessor: '$[/myProject/perl/postpLoader]',
         condition: '$[/javascript myJob.checkConnection == "true" || myJob.checkConnection == "1"]'
 
 }
-// DO NOT EDIT THIS BLOCK === configuration ends, checksum: 72b0b9cc1e0847b5ad600054dd071dc9 ===
+// DO NOT EDIT THIS BLOCK === configuration ends, checksum: 6d1a7524af815195d208ff71f623eb77 ===

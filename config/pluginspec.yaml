@@ -252,6 +252,26 @@ procedures:
         documentation: A short description of the status.
 
 
+  - name: Get Commit
+    description: This procedure retrieves a commit data for the specified SHA
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+      - name: sha
+        required: true
+        type: entry
+        documentation: Commit SHA of the commit to set status to.
+        label: Commit SHA
+      - name: resultPropertySheet
+        value: /myJob/result
+        label: Result Property Sheet
+        documentation: Property sheet to save commit into to.
+
   - name: Create Release
     description: This procedure can create a new Github Release or update an existing one.
     shell: ec-groovy

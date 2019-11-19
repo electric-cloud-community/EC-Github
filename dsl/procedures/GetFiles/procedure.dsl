@@ -16,15 +16,14 @@ the filesystem or in the provided property
     step 'Get Files', {
         description = ''
         command = new File(pluginDir, "dsl/procedures/GetFiles/steps/GetFiles.groovy").text
-        // TODO altered shell
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
         resourceName = '$[/myJob/flowpdkResource]'
 
-        postProcessor = ''''''
+        postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: f185787113b22e094c44a34d77756ffa ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 1d5baa8ac72abaf75eaf2b0e24e43385 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

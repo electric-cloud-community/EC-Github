@@ -1,6 +1,7 @@
 import com.electriccloud.client.groovy.ElectricFlow
 import com.electriccloud.flowpdf.*
 import com.electriccloud.flowpdf.exceptions.UnexpectedMissingValue
+import groovy.json.JsonOutput
 import org.kohsuke.github.GHCommit
 import org.kohsuke.github.GHCommitState
 import org.kohsuke.github.GHCommitStatus
@@ -9,51 +10,51 @@ import org.kohsuke.github.GitHub
 import org.kohsuke.github.GitHubBuilder
 
 /**
-* Github
-*/
+ * Github
+ */
 class Github extends FlowPlugin {
 
     @Override
     Map<String, Object> pluginInfo() {
         return [
-                pluginName     : '@PLUGIN_KEY@',
-                pluginVersion  : '@PLUGIN_VERSION@',
-                configFields   : ['config'],
-                configLocations: ['ec_plugin_cfgs'],
+                pluginName         : '@PLUGIN_KEY@',
+                pluginVersion      : '@PLUGIN_VERSION@',
+                configFields       : ['config'],
+                configLocations    : ['ec_plugin_cfgs'],
                 defaultConfigValues: [:]
         ]
     }
 
 /**
-    * createRepository - Create Repository/Create Repository
-    * Add your code into this method and it will be called when the step runs
+ * createRepository - Create Repository/Create Repository
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param owner (required: true)
+ * @param owner (required: true)
 
-    * @param repo (required: true)
+ * @param repo (required: true)
 
-    * @param description (required: )
+ * @param description (required: )
 
-    * @param public (required: )
+ * @param public (required: )
 
-    * @param teams (required: )
+ * @param teams (required: )
 
-    * @param branchProtectionRules (required: )
+ * @param branchProtectionRules (required: )
 
-    * @param addLicense (required: )
+ * @param addLicense (required: )
 
-    * @param licenseFile (required: )
+ * @param licenseFile (required: )
 
-    */
+ */
     def createRepository(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
         log.info(
-          "createRepository was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "createRepository was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -66,23 +67,23 @@ class Github extends FlowPlugin {
         log.info("step Create Repository has been finished")
     }
 /**
-    * deleteRelease - Delete Release/Delete Release
-    * Add your code into this method and it will be called when the step runs
+ * deleteRelease - Delete Release/Delete Release
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param repoName (required: true)
+ * @param repoName (required: true)
 
-    * @param tagName (required: true)
+ * @param tagName (required: true)
 
-    */
+ */
     def deleteRelease(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
         log.info(
-          "deleteRelease was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "deleteRelease was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -95,27 +96,27 @@ class Github extends FlowPlugin {
         log.info("step Delete Release has been finished")
     }
 /**
-    * downloadReleaseAsset - Download Release Asset/Download Release Asset
-    * Add your code into this method and it will be called when the step runs
+ * downloadReleaseAsset - Download Release Asset/Download Release Asset
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param repoName (required: true)
+ * @param repoName (required: true)
 
-    * @param tagName (required: true)
+ * @param tagName (required: true)
 
-    * @param assetName (required: true)
+ * @param assetName (required: true)
 
-    * @param assetPath (required: false)
+ * @param assetPath (required: false)
 
-    */
+ */
     def downloadReleaseAsset(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
         log.info(
-          "downloadReleaseAsset was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "downloadReleaseAsset was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -128,33 +129,33 @@ class Github extends FlowPlugin {
         log.info("step Download Release Asset has been finished")
     }
 /**
-    * uploadFiles - Upload Files/Upload Files
-    * Add your code into this method and it will be called when the step runs
+ * uploadFiles - Upload Files/Upload Files
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param ownerName (required: true)
+ * @param ownerName (required: true)
 
-    * @param repoName (required: true)
+ * @param repoName (required: true)
 
-    * @param sourceDirectory (required: false)
+ * @param sourceDirectory (required: false)
 
-    * @param mapping (required: )
+ * @param mapping (required: )
 
-    * @param files (required: )
+ * @param files (required: )
 
-    * @param branch (required: )
+ * @param branch (required: )
 
-    * @param createPr (required: )
+ * @param createPr (required: )
 
-    */
+ */
     def uploadFiles(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
         log.info(
-          "uploadFiles was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "uploadFiles was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -167,29 +168,29 @@ class Github extends FlowPlugin {
         log.info("step Upload Files has been finished")
     }
 /**
-    * getFiles - Get Files/Get Files
-    * Add your code into this method and it will be called when the step runs
+ * getFiles - Get Files/Get Files
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param ownerName (required: true)
+ * @param ownerName (required: true)
 
-    * @param repoName (required: true)
+ * @param repoName (required: true)
 
-    * @param files (required: true)
+ * @param files (required: true)
 
-    * @param destinationFolder (required: false)
+ * @param destinationFolder (required: false)
 
-    * @param ref (required: false)
+ * @param ref (required: false)
 
-    */
+ */
     def getFiles(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
         log.info(
-          "getFiles was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "getFiles was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -202,28 +203,28 @@ class Github extends FlowPlugin {
         log.info("step Get Files has been finished")
     }
 /**
-    * setCommitStatus - Set Commit Status/Set Commit Status
-    * Add your code into this method and it will be called when the step runs
+ * setCommitStatus - Set Commit Status/Set Commit Status
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param repoName (required: true)
+ * @param repoName (required: true)
 
-    * @param sha (required: true)
+ * @param sha (required: true)
 
-    * @param state (required: true)
+ * @param state (required: true)
 
-    * @param targetUrl (required: false)
+ * @param targetUrl (required: false)
 
-    * @param description (required: false)
+ * @param description (required: false)
 
-    */
+ */
     def setCommitStatus(StepParameters runtimeParameters, StepResult sr) {
 
         log.info(
-          "setCommitStatus was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "setCommitStatus was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         GitHub client = createClient(runtimeParameters)
@@ -248,37 +249,37 @@ class Github extends FlowPlugin {
         sr.apply()
     }
 /**
-    * createRelease - Create Release/Create Release
-    * Add your code into this method and it will be called when the step runs
+ * createRelease - Create Release/Create Release
+ * Add your code into this method and it will be called when the step runs
 
-    * @param config (required: true)
+ * @param config (required: true)
 
-    * @param repoName (required: true)
+ * @param repoName (required: true)
 
-    * @param updateAction (required: true)
+ * @param updateAction (required: true)
 
-    * @param releaseName (required: )
+ * @param releaseName (required: )
 
-    * @param tagName (required: true)
+ * @param tagName (required: true)
 
-    * @param commitish (required: )
+ * @param commitish (required: )
 
-    * @param body (required: )
+ * @param body (required: )
 
-    * @param assets (required: )
+ * @param assets (required: )
 
-    * @param prerelease (required: )
+ * @param prerelease (required: )
 
-    * @param deleteOldTag (required: )
+ * @param deleteOldTag (required: )
 
-    */
+ */
     def createRelease(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
         log.info(
-          "createRelease was invoked with StepParameters",
-          /* runtimeParameters contains both configuration and procedure parameters */
-          runtimeParameters.toString()
+                "createRelease was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -292,6 +293,56 @@ class Github extends FlowPlugin {
     }
 
 
+/**
+ * getCommit - Get Commit/Get Commit
+ * Add your code into this method and it will be called when the step runs
+
+ * @param config (required: true)
+
+ * @param repoName (required: true)
+
+ * @param sha (required: true)
+
+ * @param resultPropertySheet (required: )
+
+ */
+    def getCommit(StepParameters runtimeParameters, StepResult sr) {
+
+        /* Log is automatically available from the parent class */
+        log.info(
+                "getCommit was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
+        )
+        GitHub client = createClient(runtimeParameters)
+        GHRepository repo = client.getRepository(runtimeParameters.getRequiredParameter('repoName').value)
+        String commitSha = runtimeParameters.getRequiredParameter('sha').value
+        GHCommit commit = repo.getCommit(commitSha)
+        String resultProperty = runtimeParameters.getRequiredParameter('resultPropertySheet').value
+
+        FlowAPI.setFlowProperty("${resultProperty}/message", commit.commitShortInfo.message)
+        FlowAPI.setFlowProperty("${resultProperty}/commitDate", commit.commitShortInfo.commitDate.toString())
+        FlowAPI.setFlowProperty("${resultProperty}/author/name", commit.commitShortInfo.author.name)
+        FlowAPI.setFlowProperty("${resultProperty}/author/email", commit.commitShortInfo.author.email)
+
+        Map commitData = [
+                message   : commit.commitShortInfo.message,
+                commitDate: commit.commitShortInfo.commitDate.toString(),
+                author    : [
+                        name : commit.commitShortInfo.author.name,
+                        email: commit.commitShortInfo.author.email
+                ]
+        ]
+
+        FlowAPI.setFlowProperty("${resultProperty}/json", JsonOutput.toJson(commitData))
+        log.info "Commit data: ${JsonOutput.toJson(commitData)}"
+
+        sr.setJobStepSummary("${commit.author.name} (${commit.author.email}): ${commit.commitShortInfo.message}")
+
+        sr.setReportUrl("Sample Report", 'https://cloudbees.com')
+        sr.apply()
+        log.info("step Get Commit has been finished")
+    }
 // === step ends ===
 
     GitHub createClient(StepParameters runtime) {
@@ -302,13 +353,11 @@ class Github extends FlowPlugin {
             Credential cred = runtime.getCredential('credential')
             ghBuilder.withPassword(cred.userName, cred.secretValue)
             log.info("Using username and password for the GH Client: $cred.userName, *******")
-        }
-        else if (runtime.isParameterExists('bearer_credential')) {
+        } else if (runtime.isParameterExists('bearer_credential')) {
             Credential cred = runtime.getCredential('bearer_credential')
             ghBuilder.withOAuthToken(cred.secretValue)
             log.info "Using personal access token"
-        }
-        else {
+        } else {
             throw new UnexpectedMissingValue("No credential found in the plugin configuration")
         }
         return ghBuilder.build()
