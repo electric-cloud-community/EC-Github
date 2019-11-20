@@ -39,7 +39,7 @@
     <type>credential</type>
     <property>bearer_credential</property>
     <required>0</required>
-    <label>Bearer Token:</label>
+    <label>Bearer token to connect to Github API.:</label>
     <attachedAsParameterToStep>checkConnectionGeneric</attachedAsParameterToStep>
     <condition>${authScheme} == "bearerToken"</condition>
     <credentialType>secret</credentialType>
@@ -57,13 +57,6 @@
     <dependsOn>authScheme</dependsOn>
     <passwordLabel>Password to connect to Github</passwordLabel>
     <userNameLabel>Username to connect to Github</userNameLabel>
-  </formElement>
-  <formElement>
-    <type>credential</type>
-    <property>credential</property>
-    <required>1</required>
-    <label>Credentials to Connect:</label>
-    <attachedAsParameterToStep>checkConnectionGeneric</attachedAsParameterToStep>
   </formElement>
   <formElement>
     <type>checkbox</type>

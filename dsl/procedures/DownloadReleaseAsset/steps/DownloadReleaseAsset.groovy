@@ -1,9 +1,4 @@
-$[/myProject/scripts/preamble]
+$[/myProject/groovy/core/scripts/preamble.groovy.ignore]
 
-
-EFPlugin efPlugin = new EFPlugin()
-Map parameters = efPlugin.getParameters()
-def config = new EFPlugin().getConfiguration(parameters.config)
-GithubPlugin plugin = new GithubPlugin(config.userName, config.password)
-plugin.downloadReleaseAsset(parameters.repoName, parameters.tagName, parameters.assetName, parameters.assetPath)
-
+Github plugin = new Github()
+plugin.runStep( 'Download Release Asset',  'Download Release Asset', 'downloadReleaseAsset')

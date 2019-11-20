@@ -1,3 +1,4 @@
+import com.electriccloud.flowpdf.Log
 import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
 import org.kohsuke.github.*
@@ -5,26 +6,24 @@ import org.kohsuke.github.*
 import java.nio.file.Files
 import java.nio.file.Path
 
-@Slf4j
-class GithubPlugin {
+class GithubWrapper {
     GitHub client
     String password
 
+    Log log
+
     final String LICENSE = 'LICENSE'
 
-    def GithubPlugin(String username, String password) {
+    GithubWrapper(String username, String password) {
         this.password = password
         client = GitHub.connect(username, password)
     }
 
-    GithubPlugin(GitHub client) {
+    GithubWrapper(GitHub client, Log log) {
         this.client = client
+        this.log = log
     }
 
-
-    def comment() {
-
-    }
 
     GHPullRequest createPullRequest(String ownerName, String repoName, String sourceBranch, String destBranch, Map parameters) {
         GHRepository repository
@@ -209,7 +208,7 @@ class GithubPlugin {
         return release
     }
 
-    void downloadFiles(String ownerName, String repoName, List<String> files, String ref = 'master', String dest = '') {
+    List<File> downloadFiles(String ownerName, String repoName, List<String> files, String ref = 'master', String dest = '') {
         GHRepository repo = client.getRepository("${ownerName}/${repoName}")
         List<InputStream> f = []
         File destination = new File(dest)
@@ -217,6 +216,7 @@ class GithubPlugin {
             destination = new File(System.getProperty('user.dir'), destination.name)
         }
         log.info "Saving files to $destination.absolutePath"
+        List<File> retval = []
         for (String p in files) {
             GHContent content = repo.getFileContent(p, ref)
             if (content.type != 'file') {
@@ -229,7 +229,9 @@ class GithubPlugin {
                 it << is
             }
             log.info "Saved file $file.absolutePath"
+            retval << file
         }
+        return retval
     }
 
     List<GHCommit> uploadFiles(String repoName, String sourceDirectory,
@@ -402,21 +404,21 @@ class GithubPlugin {
                 } else {
                     String sha = content.sha
                     GHContentUpdateResponse response = repository.createContent()
-                                                                 .path(LICENSE)
-                                                                 .message("Updated LICENSE")
-                                                                 .sha(sha)
-                                                                 .content(licenseFile.text)
-                                                                 .commit()
+                        .path(LICENSE)
+                        .message("Updated LICENSE")
+                        .sha(sha)
+                        .content(licenseFile.text)
+                        .commit()
                     log.info "Updated license: ${response.commit.SHA1}"
                     log.info response.commit.htmlUrl as String
                 }
             } catch (IOException e) {
                 log.info "License file does not exist in the repository"
                 GHContentUpdateResponse response = repository.createContent()
-                                                             .path(LICENSE)
-                                                             .content(licenseFile.text)
-                                                             .message("Created LICENSE")
-                                                             .commit()
+                    .path(LICENSE)
+                    .content(licenseFile.text)
+                    .message("Created LICENSE")
+                    .commit()
                 log.info "Created License: ${response.commit.SHA1}"
                 log.info response.commit.htmlUrl as String
             }

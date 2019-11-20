@@ -8,25 +8,25 @@ pluginInfo:
 
 
 configuration:
-#  checkConnection: true
-#  restConfigInfo:
-#    defaultEndpointValue: 'https://api.github.com'
-#    checkConnectionUri: '/user'
-#    headers:
-#      Accept: '*'
-#    endpointDescription: 'Endpoint to connect to. By default Github API endpoint.'
-#    authSchemes:
-#      basic:
-#        userNameLabel: Username to connect to Github
-#        passwordLabel: Password to connect to Github
-#      bearer:
-#        passwordLabel: Bearer token to connect to Github API.
+  checkConnection: true
+  restConfigInfo:
+    defaultEndpointValue: 'https://api.github.com'
+    checkConnectionUri: '/user'
+    headers:
+      Accept: '*'
+    endpointDescription: 'Endpoint to connect to. By default Github API endpoint.'
+    authSchemes:
+      basic:
+        userNameLabel: Username to connect to Github
+        passwordLabel: Password to connect to Github
+      bearer:
+        passwordLabel: Bearer token to connect to Github API.
   hasDebugLevel: true
-  parameters:
-    - name: credential
-      required: true
-      label: Credentials to Connect
-      type: credential
+#  parameters:
+#    - name: credential
+#      required: true
+#      label: Credentials to Connect
+#      type: credential
 
 procedures:
   - name: Create Repository
