@@ -2,15 +2,26 @@
 // DO NOT EDIT THIS BLOCK === procedure_autogen starts ===
 procedure 'Delete Release', description: '''Deletes a tag and an attached release from Github''', {
 
+    // Handling binary dependencies
+    step 'flowpdk-setup', {
+        description = "This step handles binary dependencies delivery"
+        subprocedure = 'flowpdk-setup'
+        actualParameter = [
+            generateClasspathFromFolders: 'deps/libs'
+        ]
+    }
+
     step 'Delete Release', {
         description = ''
         command = new File(pluginDir, "dsl/procedures/DeleteRelease/steps/DeleteRelease.groovy").text
-        // TODO altered shell
         shell = 'ec-groovy'
+        shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        postProcessor = ''''''
+        resourceName = '$[/myJob/flowpdkResource]'
+
+        postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 082f96095acf81c8caa3e5f42acd0304 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 45db83165fd2e9a2210b1c57f132ba74 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

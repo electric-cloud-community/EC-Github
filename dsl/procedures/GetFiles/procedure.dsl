@@ -4,15 +4,26 @@ procedure 'Get Files', description: '''This procedure fetches the content of the
 the filesystem or in the provided property
 ''', {
 
+    // Handling binary dependencies
+    step 'flowpdk-setup', {
+        description = "This step handles binary dependencies delivery"
+        subprocedure = 'flowpdk-setup'
+        actualParameter = [
+            generateClasspathFromFolders: 'deps/libs'
+        ]
+    }
+
     step 'Get Files', {
         description = ''
         command = new File(pluginDir, "dsl/procedures/GetFiles/steps/GetFiles.groovy").text
-        // TODO altered shell
         shell = 'ec-groovy'
+        shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        postProcessor = ''''''
+        resourceName = '$[/myJob/flowpdkResource]'
+
+        postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 42579be15e121efa323e64ac87abf04a ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 1d5baa8ac72abaf75eaf2b0e24e43385 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

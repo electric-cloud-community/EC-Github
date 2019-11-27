@@ -11,3 +11,8 @@
   - Upload Files procedure has been added
 2.1.1:
   - Removed default value "files" from the destinationFolder parameter of the Get Files procedure.
+3.0.0:
+  - Added "Set Commit Status" procedure
+  - Added "Get Commit" procedure
+  - Added endpoint and bearer authorization scheme to the configuration
+  - Added binary dependencies handling

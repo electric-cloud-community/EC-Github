@@ -1,6 +1,6 @@
 pluginInfo:
   pluginName: EC-Github
-  version: 2.1.1
+  version: 3.0.0
   description: CloudBees Flow integration for Github API
   author: Polina
   authorUrl: pshubina@cloudbees.com
@@ -8,25 +8,20 @@ pluginInfo:
 
 
 configuration:
-
-#  checkConnection: true
-#  rest:
-#    defaultEndpointValue: 'https://api.github.com'
-#    checkConnectionUri: '/user'
-#    endpointDescription: 'Endpoint to connect to. By default Github API endpoint.'
-#    authSchemes:
-#      basic:
-#        userNameLabel: Username to connect to Github
-#        passwordLabel: Password to connect to Github
-#      bearer:
-#        passwordLabel: Bearer token to connect to Github API.
-#  hasDebugLevel: true
-
-  parameters:
-    - name: credential
-      required: true
-      label: Credentials to Connect
-      type: credential
+  checkConnection: true
+  restConfigInfo:
+    defaultEndpointValue: 'https://api.github.com'
+    checkConnectionUri: '/user'
+    headers:
+      Accept: '*'
+    endpointDescription: 'Endpoint to connect to. By default Github API endpoint.'
+    authSchemes:
+      basic:
+        userNameLabel: Username to connect to Github
+        passwordLabel: Password to connect to Github
+      bearer:
+        passwordLabel: Bearer token to connect to Github API.
+  hasDebugLevel: true
 
 
 procedures:
@@ -211,6 +206,67 @@ procedures:
         value: master
         documentation: Reference (branch, commit or tag to download file from)
 
+  - name: Set Commit Status
+    description: Set status for a commit using its SHA
+    hasConfig: true
+    shell: ec-groovy
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+      - name: sha
+        required: true
+        type: entry
+        documentation: Commit SHA of the commit to set status to.
+        label: Commit SHA
+      - name: state
+        type: select
+        required: true
+        label: State
+        documentation: State for the commit.
+        options:
+          - name: error
+            value: error
+          - name: failure
+            value: failure
+          - name: pending
+            value: pending
+          - name: success
+            value: success
+      - name: targetUrl
+        type: entry
+        documentation: |
+          The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.
+        label: Target URL
+        required: false
+      - name: description
+        type: textarea
+        required: false
+        label: Description
+        documentation: A short description of the status.
+
+
+  - name: Get Commit
+    description: This procedure retrieves a commit data for the specified SHA
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+      - name: sha
+        required: true
+        type: entry
+        documentation: Commit SHA of the commit to set status to.
+        label: Commit SHA
+      - name: resultPropertySheet
+        value: /myJob/result
+        label: Result Property Sheet
+        documentation: Property sheet to save commit into to.
 
   - name: Create Release
     description: This procedure can create a new Github Release or update an existing one.

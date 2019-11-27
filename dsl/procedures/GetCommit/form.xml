@@ -1,0 +1,37 @@
+<!--
+    This form is generated automatically from the parameters pluginspec.
+    Please not not edit this file manually as it will be regenerated.
+-->
+<editor>
+  <help>/commander/pages/@PLUGIN_NAME@/help?s=Administration&amp;ss=Plugins#GetCommit</help>
+  <formElement>
+    <type>entry</type>
+    <property>config</property>
+    <configuration>1</configuration>
+    <propertyReference>/plugins/@PLUGIN_NAME@/project/ec_plugin_cfgs</propertyReference>
+    <required>1</required>
+    <documentation>Previously defined configuration for the plugin</documentation>
+    <label>Configuration Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>repoName</property>
+    <required>1</required>
+    <documentation>Repository name, in form owner/repo.</documentation>
+    <label>Repository Name:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>sha</property>
+    <required>1</required>
+    <documentation>Commit SHA of the commit to set status to.</documentation>
+    <label>Commit SHA:</label>
+  </formElement>
+  <formElement>
+    <type>entry</type>
+    <property>resultPropertySheet</property>
+    <documentation>Property sheet to save commit into to.</documentation>
+    <label>Result Property Sheet:</label>
+    <value>/myJob/result</value>
+  </formElement>
+</editor>

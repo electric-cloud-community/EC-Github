@@ -1,5 +1,5 @@
 
-// === check_connection starts ===
+// DO NOT EDIT THIS BLOCK === check_connection starts ===
 import groovy.json.JsonSlurper
 import com.electriccloud.client.groovy.ElectricFlow
 import groovyx.net.http.HTTPBuilder
@@ -9,7 +9,7 @@ import static groovyx.net.http.ContentType.JSON
 import org.apache.http.auth.*
 
 def checkConnectionMetaString = '''
-{"authSchemes":{"basic":{"checkConnectionUri":null,"credentialName":"basic_credential"},"bearerToken":{"checkConnectionUri":null,"prefix":null,"credentialName":"bearer_credential"}},"checkConnectionUri":"/user","headers":null}
+{"authSchemes":{"basic":{"checkConnectionUri":null,"credentialName":"basic_credential"},"bearerToken":{"checkConnectionUri":null,"prefix":null,"credentialName":"bearer_credential"}},"checkConnectionUri":"/user","headers":{"Accept":"*"}}
 '''
 
 def checkConnectionMeta = new JsonSlurper().parseText(checkConnectionMetaString)
@@ -77,19 +77,18 @@ if (proxyUrlFormalParameter) {
 // Should be ignored after the proxy is set
 http.ignoreSSLIssues()
 
-http.request(GET, JSON) { req ->
+http.request(GET, TEXT) { req ->
   headers.'User-Agent' = 'FlowPDF Check Connection'
+  headers.accept = '*'
 
   if (checkConnectionMeta.headers) {
     headers.putAll(checkConnectionMeta.headers)
     println "Added headers: $checkConnectionMeta.headers"
   }
 
-  if (checkConnectionMeta.checkConnectionUri != null) {
-    uri.path = augmentUri(uri.path, checkConnectionMeta.checkConnectionUri)
-    println "URI: $uri"
-  }
+  uri.query = [:]
 
+  boolean uriChanged = false
   if (authType == "basic") {
     def meta = checkConnectionMeta?.authSchemes?.basic
     def credentialName = meta?.credentialName ?: "basic_credential"
@@ -103,7 +102,9 @@ http.request(GET, JSON) { req ->
     println "Setting Basic Auth: username $basicAuth.userName"
     if (meta.checkConnectionUri != null) {
         uri.path = augmentUri(uri.path, meta.checkConnectionUri)
+        uri.query = fetchQuery(meta.checkConnectionUri)
         println "Check Connection URI: $uri"
+        uriChanged = true
     }
   }
 
@@ -116,7 +117,9 @@ http.request(GET, JSON) { req ->
     println "Setting Bearer Auth with prefix $prefix"
     if (meta.checkConnectionUri != null) {
         uri.path = augmentUri(uri.path, meta.checkConnectionUri)
+        uri.query = fetchQuery(meta.checkConnectionUri)
         println "Check Connection URI: $uri"
+        uriChanged = true
     }
   }
 
@@ -124,9 +127,17 @@ http.request(GET, JSON) { req ->
     println "Anonymous access"
     def meta = checkConnectionMeta?.authSchemes?.anonymous
     if (meta.checkConnectionUri != null) {
-      uri.path = meta.checkConnectionUri
+      uri.path = augmentUri(uri.path, meta.checkConnectionUri)
+      uri.query = fetchQuery(meta.checkConnectionUri)
       println "Check Connection URI: $uri"
+      uriChanged = true
     }
+  }
+
+  if (checkConnectionMeta.checkConnectionUri != null && !uriChanged) {
+    uri.path = augmentUri(uri.path, checkConnectionMeta.checkConnectionUri)
+    uri.query = fetchQuery(checkConnectionMeta.checkConnectionUri)
+    println "URI: $uri"
   }
 
   response.success = { resp, reader ->
@@ -150,7 +161,24 @@ def handleError(def ef, def message) {
   System.exit(-1)
 }
 
+def fetchQuery(String uri) {
+  def parts = uri.split(/\?/)
+  def query = [:]
+  if (parts.size() > 1) {
+    def queryString = parts[1]
+    queryString.split('&').each {
+      def p = it.split('=')
+      if (p.size() > 1) {
+        query.put(p[0], p[1])
+      }
+    }
+  }
+  println "Query: $query"
+  return query
+}
+
 def augmentUri(path, uri) {
+    uri = uri.split(/\?/).getAt(0)
     if (path.endsWith('/') || uri.startsWith('/')) {
         path = path + uri
     }
@@ -159,4 +187,4 @@ def augmentUri(path, uri) {
     }
     return path
 }
-// === check_connection ends, checksum: feac227040b244cc8dc8fa9ef8600104 ===
+// DO NOT EDIT THIS BLOCK === check_connection ends, checksum: 9ce53d3266b0ec2732619149efe59907 ===

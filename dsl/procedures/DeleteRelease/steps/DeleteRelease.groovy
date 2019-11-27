@@ -1,14 +1,5 @@
-$[/myProject/scripts/preamble]
 
-import groovy.json.JsonSlurper
-import org.kohsuke.github.GHRelease
-import org.kohsuke.github.GHRepository
+$[/myProject/groovy/core/scripts/preamble.groovy.ignore]
 
-
-
-EFPlugin efPlugin = new EFPlugin()
-Map parameters = efPlugin.getParameters()
-def config = new EFPlugin().getConfiguration(parameters.config)
-GithubPlugin plugin = new GithubPlugin(config.userName, config.password)
-plugin.deleteTag(parameters.repoName, parameters.tagName)
-
+Github plugin = new Github()
+plugin.runStep( 'Delete Release',  'Delete Release', 'deleteRelease')

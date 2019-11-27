@@ -1,0 +1,18 @@
+apply plugin: 'java'
+
+repositories{
+    mavenCentral()
+    maven {
+        url 'http://artifactory.electric-cloud.com/artifactory/ec'
+    }
+}
+
+dependencies{
+    compile 'org.kohsuke:github-api:1.95'
+}
+
+
+task copyDependencies(type: Copy) {
+    from configurations.compile
+    into 'agent/deps/libs'
+}

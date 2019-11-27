@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on October 21, 2019</p>
+    <p>Revised on November 27, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -51,7 +51,13 @@
         <li><a href="#DownloadReleaseAsset">Download Release Asset</a></li>
         
 
+        <li><a href="#GetCommit">Get Commit</a></li>
+        
+
         <li><a href="#GetFiles">Get Files</a></li>
+        
+
+        <li><a href="#SetCommitStatus">Set Commit Status</a></li>
         
 
         <li><a href="#UploadFiles">Upload Files</a></li>
@@ -134,8 +140,43 @@
             
             <tr>
                 
-                    <td class="required">Credentials to Connect</td>
+                    <td class="required">REST API Endpoint</td>
+                    <td>Endpoint to connect to. By default Github API endpoint.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                    <td class="required">Auth Scheme</td>
+                    <td>Authorization scheme for the third-party connection.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                    <td >Bearer token to connect to Github API.</td>
                     <td></td>
+                
+            </tr>
+            
+            <tr>
+                
+                    <td >Basic Auth Credential</td>
+                    <td>Username and password for the Basic authentication</td>
+                
+            </tr>
+            
+            <tr>
+                
+                    <td >Check Connection?</td>
+                    <td>If checked, a connection endpoint and credentials will be tested before save. The configuration will not be saved if the test fails.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                    <td >Debug Level</td>
+                    <td>This option sets debug level for logs. If info is selected, only summary information will be shown, for debug, there will be some debug information and for trace the whole requests and responses will be shown.</td>
                 
             </tr>
             
@@ -451,6 +492,60 @@ Teams are applicable to the organization only.
     </div>
 
     
+    <div id="GetCommit">
+        <h2>Get Commit</h2>
+        
+        
+        <p>This procedure retrieves a commit data for the specified SHA</p>
+        
+        
+        <h3>Get Commit Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Commit SHA</td>
+                <td>Commit SHA of the commit to set status to.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Result Property Sheet</td>
+                <td>Property sheet to save commit into to.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
     <div id="GetFiles">
         <h2>Get Files</h2>
         
@@ -510,6 +605,75 @@ the filesystem or in the provided property
                 
                 <td >Git Reference</td>
                 <td>Reference (branch, commit or tag to download file from)</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+
+        
+    </div>
+
+    
+    <div id="SetCommitStatus">
+        <h2>Set Commit Status</h2>
+        
+        
+        <p>Set status for a commit using its SHA</p>
+        
+        
+        <h3>Set Commit Status Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Commit SHA</td>
+                <td>Commit SHA of the commit to set status to.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">State</td>
+                <td>State for the commit.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Target URL</td>
+                <td>The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Description</td>
+                <td>A short description of the status.</td>
                 
             </tr>
             
@@ -627,6 +791,19 @@ If not master, the branch will be created from the master branch.
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 3.0.0</h3>
+    <ul>
+        
+        <li>Added "Set Commit Status" procedure</li>
+        
+        <li>Added "Get Commit" procedure</li>
+        
+        <li>Added endpoint and bearer authorization scheme to the configuration</li>
+        
+        <li>Added binary dependencies handling</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 2.1.1</h3>
     <ul>
