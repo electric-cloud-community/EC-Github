@@ -1,6 +1,6 @@
 pluginInfo:
   pluginName: EC-Github
-  version: 2.2.0
+  version: 3.0.0
   description: CloudBees Flow integration for Github API
   author: Polina
   authorUrl: pshubina@cloudbees.com
@@ -22,11 +22,7 @@ configuration:
       bearer:
         passwordLabel: Bearer token to connect to Github API.
   hasDebugLevel: true
-#  parameters:
-#    - name: credential
-#      required: true
-#      label: Credentials to Connect
-#      type: credential
+
 
 procedures:
   - name: Create Repository

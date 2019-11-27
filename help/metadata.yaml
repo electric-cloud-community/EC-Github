@@ -1,2 +1,6 @@
 overview: |
   This plugin integates with Github API.
+
+excludeProcedures:
+ - flowpdk-setup
+ - flowpdkSetup
