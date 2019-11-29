@@ -17,9 +17,9 @@ procedure 'Create Repository', description: '''Creates a GitHub Repository''', {
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        resourceName = '$[/myJob/flowpdkResource]'
+        resourceName = '$[flowpdkResource]'
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 61d693fa03c18942594c67594f6600dd ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 732b06af9a37a80377df3a0fa4d6a995 ===
 }

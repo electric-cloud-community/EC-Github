@@ -1,16 +1,21 @@
-// Do not change this file, it will completely overwritten over during flowpdk generate plugin
-procedure 'flowpdk-setup',
-description: 'Retrieves Groovy dependencies. This procedure can be used as a first step of the procedure which requires dependencies.', {
+import java.io.File
 
+procedure 'flowpdk-setup', description: 'Delivers binary dependencies from the Flow server to the agent', {
+
+    // don't add a step picker for this procedure since it is internally invoked
     property 'standardStepPicker', value: false
 
-    step 'Setup',
-        command: new File(pluginDir, "dsl/procedures/flowpdkSetup/steps/setup.pl").text,
-        shell: 'ec-perl'
+    step 'setup',
+          command: new File(pluginDir, 'dsl/procedures/flowpdkSetup/steps/setup.pl').text,
+          errorHandling: 'failProcedure',
+          exclusiveMode: 'none',
+          postProcessor: 'postp',
+          releaseMode: 'none',
+          shell: 'ec-perl',
+          timeLimitUnits: 'minutes'
 
-    property 'flowpdk-dsl', {
-        value = new File(pluginDir, "dsl/procedures/flowpdkSetup/compressAndDeliver.groovy").text
-    }
+    property 'ec_compressAndDeliver', value: new File(pluginDir, 'dsl/procedures/flowpdkSetup/compressAndDeliver.dsl').text
+
 
     formalParameter 'generateClasspathFromFolders', {
         required = '0'

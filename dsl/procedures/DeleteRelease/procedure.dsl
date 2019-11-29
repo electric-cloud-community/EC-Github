@@ -17,11 +17,11 @@ procedure 'Delete Release', description: '''Deletes a tag and an attached releas
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        resourceName = '$[/myJob/flowpdkResource]'
+        resourceName = '$[flowpdkResource]'
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 45db83165fd2e9a2210b1c57f132ba74 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 483c7e06123822036aebf3f2e28154bf ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

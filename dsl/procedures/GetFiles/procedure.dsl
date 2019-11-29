@@ -19,11 +19,11 @@ the filesystem or in the provided property
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        resourceName = '$[/myJob/flowpdkResource]'
+        resourceName = '$[flowpdkResource]'
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 1d5baa8ac72abaf75eaf2b0e24e43385 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: b5ebb89fbbe4a3132a7c31e168701ac9 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

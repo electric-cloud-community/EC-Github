@@ -290,6 +290,7 @@ class Github extends FlowPlugin {
         String targetUrl = runtimeParameters.getParameter('targetUrl')?.value
         if (!targetUrl) {
             targetUrl = getRuntimeLink()
+            log.info("Calculated target URL: $targetUrl")
         }
         String description = runtimeParameters.getParameter('description')?.value
         GHCommitState ghState = GHCommitState.valueOf(state.toUpperCase())
@@ -458,15 +459,18 @@ class Github extends FlowPlugin {
     }()
 
     String getRuntimeLink() {
-        ElectricFlow client = FlowAPI.getEc()
-        String link
-        try {
-            client.getProperty_0(propertyName: '/myPipelineRuntime/id')
-        } catch (Throwable e) {
-            String jobId = System.getenv('COMMANDER_JOBID')
-            link = '/commander/link/jobDetails/jobs/' + jobId
-            // https://vivarium2/commander/link/jobDetails/jobs/9f599642-0498-11ea-b9cf-0242e3464664
-        }
+            ElectricFlow client = FlowAPI.getEc()
+            String link
+            try {
+                String pipelineRuntimeId = client.getProperty_0(propertyName: '/myPipelineRuntime/id')?.property?.value
+                String pipelineId = client.getProperty_0(propertyName: "/myPipeline/id")?.property?.value
+                link = '/flow/#pipeline-run/' + pipelineId + '/' + pipelineRuntimeId
+                //https://chronic3.electric-cloud.com/flow/#pipeline-run/e0e16734-d88c-11e9-926b-005056bb04e9/6b032f87-12b6-11ea-af15-005056bb380b
+            } catch (Throwable e) {
+                String jobId = System.getenv('COMMANDER_JOBID')
+                link = '/commander/link/jobDetails/jobs/' + jobId
+                // https://vivarium2/commander/link/jobDetails/jobs/9f599642-0498-11ea-b9cf-0242e3464664
+            }
 
         return 'http://$[/server/webServerHost]' + link
     }

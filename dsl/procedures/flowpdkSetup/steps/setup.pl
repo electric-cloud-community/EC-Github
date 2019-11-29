@@ -1,122 +1,112 @@
-# Do not change this file, it will completely overwritten over during flowpdk generate plugin
+package Setup;
 use strict;
 use warnings;
 use JSON;
-use ElectricCommander;
 use Data::Dumper;
-use File::Spec;
-use File::Path qw(mkpath);
 use Digest::MD5;
 use MIME::Base64 qw(decode_base64);
 use Archive::Zip;
-use Time::HiRes qw(gettimeofday tv_interval);
-use subs qw(logInfo);
+use ElectricCommander::Util;
+use ElectricCommander;
+use File::Find;
+use File::Spec;
+use File::Path qw(mkpath);
+use File::Temp q(tempfile);
+use File::Copy::Recursive qw(rcopy);
 
-my $ec = ElectricCommander->new;
-my $resName = '$[/myResource/name]';
-$ec->setProperty({propertyName => '/myJob/flowpdkResource', value => $resName});
-print "Acquired resource $resName\n";
+use constant {
+    META_PROPERTY => '/myProject/ec_binary_dependencies',
+    DEPS_CACHE => "depsCache",
+    SHARED_DEPENDENCIES_PATH => 'sharedDependenciesPath',
+};
 
-my $generateClasspathFromFolders = $ec->getPropertyValue('generateClasspathFromFolders');
-deliverDependencies();
+sub logInfo {
+    my @messages = @_;
 
-if ($generateClasspathFromFolders) {
-    print "generateClasspathFromFolders: $generateClasspathFromFolders\n";
-    # Folders are relative to agent/ folder
-    my @jars = ();
-
-    for my $folder (split /\,\s*/ => $generateClasspathFromFolders) {
-        my $path = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent/' . $folder);
-        if (-d $path) {
-            if ($path !~ /\/$/) {
-                $path .= '/';
-            }
-            $path .= '*';
-            push @jars, $path;
+    for my $m (@messages) {
+        if (ref $m) {
+            print Dumper $m;
         }
-        # print "Looking for jars in folder $path\n";
-        # opendir my $dh, $path or die "Cannot open directory $path: $!";
-        # for my $file (readdir $dh) {
-        #     # One level
-        #     next if $file =~ /^\./;
-        #     if ($file =~ /\.jar$/) {
-        #         push @jars, File::Spec->catfile($path, $file);
-        #     }
-        # }
+        else {
+            print "$m\n";
+        }
     }
-
-    my $os = $^O;
-    my $separator = ':';
-    if ($os =~ /win/i) {
-        $separator = ";";
-    }
-    my $classpath = join($separator, @jars);
-    $ec->setProperty({propertyName => '/myJob/flowpdk_classpath', value => $classpath});
-    print "Classpath: $classpath\n";
 }
 
-# Auto-generated method for the procedure DeliverDependencies/DeliverDependencies
-# Add your code into this method and it will be called when step runs
-sub deliverDependencies {
-    my $start = [gettimeofday];
+sub logError {
+    my @messages = @_;
 
-    my $source = $ec->getPropertyValue('/server/settings/pluginsDirectory') .'/@PLUGIN_NAME@/agent';
-
-    my $processingFile = 0;
-    my $dest = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent');
-    $ec->setProperty({
-        propertyName => '/myJob/flowpdk_agentFolderPath',
-        value => $dest,
-    });
-
-    # Cache check
-    my $cacheValid = 1;
-    my $meta = {};
-    eval {
-        $meta = readMeta();
-        1;
-    } or do {
-        $cacheValid = 0;
-        print "[WARNING] Failed to read meta. Caches won't be used\n";
-    };
-
-    my @files = keys %$meta;
-    for my $file (@files) {
-        my $fullFilename = File::Spec->catfile($dest, $file);
-        unless(-f $fullFilename) {
-            logInfo "File $fullFilename does not exist, cache is invalid";
-            $cacheValid = 0;
-            last;
+    for my $m (@messages) {
+        if (ref $m) {
+            print "[ERROR] " . Dumper $m;
         }
-        my $digest = Digest::MD5->new;
-        open(my $fh, $fullFilename);
-        if (!$fh) {
-            logInfo "File $fullFilename cannot be opened, cache is invalid";
-            $cacheValid = 0;
-            last;
-        }
-        binmode $fh;
-        $digest->addfile($fh);
-        if ($digest->hexdigest ne $meta->{$file}) {
-            $cacheValid = 0;
-            logInfo "Checksums do not match for file $file, cache is invalid";
-            last;
+        else {
+            print "[ERROR] $m\n";
         }
     }
-    if ($cacheValid) {
-        logInfo "Local cache is valid, no further action required";
-        exit 0;
+}
+
+sub new {
+    my ($class) = @_;
+    return bless {}, $class;
+}
+
+
+sub fetchFromServer {
+    my ($self, $dest) = @_;
+
+    # REST Client
+    my $ec = ElectricCommander->new;
+    my $session = $ENV{COMMANDER_SESSIONID};
+    my $ua = LWP::UserAgent->new(
+        conn_cache => new LWP::ConnCache( total_capacity => 100 ),
+        cookie_jar => {},
+        timeout => $ec->{timeout},
+        ssl_opts => { verify_hostname => 0 }
+    );
+
+    my $httpProxy = $ENV{COMMANDER_HTTP_PROXY};
+    if ($httpProxy) {
+        $ua->proxy(https => $httpProxy);
+        $ua->proxy(http => $httpProxy);
     }
 
-    # TODO error
-    my $dsl = $ec->getPropertyValue('/myProcedure/flowpdk-dsl');
+    my $protocol = $ENV{COMMANDER_SECURE} ? 'https' : 'http';
+    my $httpsPort = $ENV{COMMANDER_HTTPS_PORT} || 8443;
+    my $httpPort = $ENV{COMMANDER_PORT} || 8000;
+    my $port = $ENV{COMMANDER_SECURE} ? $httpsPort : $httpPort;
+    my $server = $ENV{COMMANDER_SERVER} || 'localhost';
+    my $pluginName = '@PLUGIN_NAME@';
+    my $url = "$protocol://$server:$port/rest/v1.0/plugins/$pluginName/agent-dependencies";
+    my $dependencies = File::Spec->catfile($dest, ".cbDependenciesTarget.zip");
+    my $response = $ua->get($url,
+        cookie => "sessionId=$session",
+        ':content_file' => $dependencies
+    );
+
+    unless($response->is_success) {
+        logError "Failed to retrieve dependencies from the server: code " . $response->code . ", status: " . $response->status_line . ", message: " . $response->content;
+        die "Failed to retrieve dependencies from the server: " . $response->code;
+    }
+
+    logInfo "Saved response to $dependencies";
+    return $dependencies;
+}
+
+
+sub fetchFromDsl {
+    my ($self, $dest) = @_;
+
+    my $ec = ElectricCommander->new;
+    my $dsl = $ec->getPropertyValue('/myProcedure/ec_compressAndDeliver');
 
     my $hasMore = 1;
     my $offset = 0;
-    mkpath($dest);
+
     my $dependencies = File::Spec->catfile($dest, ".cbDependenciesTarget.zip");
     open my $fh, ">$dependencies" or die "Cannot open $dependencies: $!";
     binmode $fh;
+    my $source = $ec->getPropertyValue('/server/settings/pluginsDirectory') .'/@PLUGIN_NAME@/agent';
     while($hasMore) {
         my $args = {
             offset => $offset,
@@ -124,7 +114,7 @@ sub deliverDependencies {
             chunkSize => 1024 * 1024 * 4
         };
         print "Calling evalDSl with arguments " . Dumper ($args) . "\n";
-        my $xpath = $ec->evalDsl({
+        my $xpath = $self->ec->evalDsl({
             dsl => $dsl,
             parameters => encode_json($args),
         });
@@ -145,32 +135,210 @@ sub deliverDependencies {
             $hasMore = 0;
         }
     }
-    close $fh;
 
-    my $t0 = [gettimeofday];
+    close $fh;
+    return $dependencies;
+}
+
+# Auto-generated method for the procedure DeliverDependencies/DeliverDependencies
+# Add your code into this method and it will be called when step runs
+sub deliverDependencies {
+    my ($self) = @_;
+
+    my $resName = '$[resourceName]';
+    $self->ec->setProperty('/myJob/grabbedResource', $resName);
+    $self->ec->setProperty('/myJob/flowpdkResource', $resName);
+    logInfo "Grabbed resource $resName";
+
+    if ($self->checkCache()) {
+        print "Local file cache is ok\n";
+        $self->copyGrapes();
+        $self->copySharedDeps();
+        $self->configureClasspath();
+        exit 0;
+    }
+
+    logInfo "Local cache failed, reloading files";
+
+    my $source = $self->ec->getPropertyValue('/server/settings/pluginsDirectory') .'/@PLUGIN_NAME@/agent';
+    my $dest = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent');
+    mkpath($dest);
+    my $dependencies;
+    # TODO add check version when there is one
+    if (0) {
+        $dependencies = $self->fetchFromServer($dest);
+    }
+    else {
+        $dependencies = $self->fetchFromDsl($dest);
+    }
 
     my $zip = Archive::Zip->new();
+    logInfo "Reading .zip file $dependencies";
     unless($zip->read($dependencies) == Archive::Zip::AZ_OK()) {
       die "Cannot read .zip dependencies: $!";
     }
     $zip->extractTree("", $dest . '/');
 
-    # TODO write meta
-}
-
-sub readMeta {
-    my $ec = ElectricCommander->new;
-    my $json = $ec->getPropertyValue('/myProject/flowpdk_binaryDependencies');
-    unless($json) {
-        # TODO error
-        die 'Failed to retrive dependencies meta from property /myProject/flowpdk_binaryDependencies';
+    # Check if not empty
+    # Just in case
+    opendir my $dh, $dest or die "Cannot open directory $dest: $!";
+    my @files = grep { $_ !~ /^\./ } readdir $dh;
+    unless(scalar @files) {
+        logError "No files found in the $dest directory, it is probably corrupted", "Please check the folder $source/@PLUGIN_NAME@/agent on the Flow Server filesystem. If it is empty, please reinstall the plugin.";
+        die "No files found in the $dest directory. It is probably corrupted";
     }
-    my $meta = decode_json($json);
-    return $meta;
+
+    unlink $dependencies;
+    print "Extracted dependencies archive\n";
+    $self->writeMeta();
+
+    $self->copyGrapes();
+    $self->copySharedDeps();
+    $self->configureClasspath();
+}
+
+sub configureClasspath {
+    my ($self) = @_;
+
+    # Now configuring classpath
+    my $generateClasspathFromFolders = $self->ec->getPropertyValue('generateClasspathFromFolders');
+    return unless $generateClasspathFromFolders;
+
+    logInfo "generateClasspathFromFolders: $generateClasspathFromFolders";
+    # Folders are relative to agent/ folder
+    my @jars = ();
+
+    for my $folder (split /\,\s*/ => $generateClasspathFromFolders) {
+        my $path = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent/' . $folder);
+        if (-d $path) {
+            if ($path !~ /\/$/) {
+                $path .= '/';
+            }
+            $path .= '*';
+            logInfo "Adding folder $path to classpath";
+            push @jars, $path;
+        }
+    }
+
+    my $os = $^O;
+    my $separator = ':';
+    if ($os =~ /win/i) {
+        $separator = ";";
+    }
+    my $classpath = join($separator, @jars);
+    unless($classpath) {
+        die "Failed to generate classpath: classpath is empty.";
+    }
+    $self->ec->setProperty({propertyName => '/myJob/flowpdk_classpath', value => $classpath});
+    logInfo "Classpath: $classpath\n";
+}
+
+sub copyGrapes {
+    my ($self) = @_;
+
+    my $grapes = File::Spec->catfile(
+        $ENV{COMMANDER_PLUGINS},
+        '@PLUGIN_NAME@/agent/grape'
+    );
+
+    unless(-d $grapes) {
+        return;
+    }
+
+    logInfo "Grapes folder found";
+    my $grapesDir = $ENV{COMMANDER_DATA} . '/grape';
+    mkpath($grapesDir);
+    rcopy($grapes, $grapesDir);
+    logInfo "Copied grapes dependencies into $grapesDir";
+}
+
+sub copySharedDeps {
+    my ($self) = @_;
+
+    my $sharedDeps = File::Spec->catfile(
+        $ENV{COMMANDER_PLUGINS},
+        '@PLUGIN_NAME@/agent/shared'
+    );
+
+    unless(-d $sharedDeps) {
+        return;
+    }
+
+    my $destFolder = eval {
+        $self->ec->getPropertyValue(META_PROPERTY . '/sharedDependenciesPath');
+    };
+    $destFolder ||= 'shared-deps';
+
+    my $destination = File::Spec->catfile($ENV{COMMANDER_DATA}, $destFolder);
+    rcopy($sharedDeps, $destination);
+    logInfo "Shared dependencies copied into $destination";
+}
+
+sub checkCache {
+    my ($self) = @_;
+
+    my $prop = META_PROPERTY . '/' . DEPS_CACHE;
+    my $meta;
+    eval {
+        my $metaJson = $self->ec->getPropertyValue($prop);
+        $meta = JSON->new->decode($metaJson);
+        1;
+    } or do {
+        logInfo "Cannot read dependencies map $prop";
+        return 0;
+    };
+    my $folder = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent');
+    for my $file (keys %$meta) {
+        my $fullname = File::Spec->catfile($folder, $file);
+        if (!-f $fullname) {
+            logInfo "Cannot find file $fullname declared in the cache map";
+            return 0;
+        }
+    }
+    return 1;
+}
+
+sub writeMeta {
+    my ($self) = @_;
+    my $folder = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent');
+    my %files = ();
+    find(sub {
+        return if $_ =~ /^\./;
+        return if -d $File::Find::name;
+        my $rel = File::Spec->abs2rel($File::Find::name, $folder);
+        $files{$rel} = -1;
+    }, $folder);
+
+    my $meta = JSON->new->encode(\%files);
+    my $property = META_PROPERTY . '/' . DEPS_CACHE;
+    $self->ec->setProperty($property, $meta);
+    logInfo "Saved meta into $property", \%files;
+}
+
+sub ec {
+    my ($self) = @_;
+
+    $self->{ec} ||= ElectricCommander->new;
+    return $self->{ec};
 }
 
 
-sub logInfo {
-    my $message = shift;
-    print "[INFO] $message\n";
+sub getSharedDepsFolder {
+    my ($self) = @_;
+
+    my $destFolder = eval {
+        $self->ec->getPropertyValue(META_PROPERTY . '/' . SHARED_DEPENDENCIES_PATH);
+    };
+    $destFolder ||= 'shared-deps';
+
+    my $destination = File::Spec->catfile($ENV{COMMANDER_DATA}, $destFolder);
+    return $destination;
 }
+
+
+1;
+
+
+my $o = Setup->new;
+$o->deliverDependencies();
+

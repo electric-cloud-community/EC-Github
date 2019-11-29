@@ -18,11 +18,11 @@ procedure 'Upload Files', description: '''This procedure uploads the provided fi
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        resourceName = '$[/myJob/flowpdkResource]'
+        resourceName = '$[flowpdkResource]'
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 276bc6dc1cc966809b9da1b88c1c1e00 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 780aaef74d816f15648b1437e3ec72d5 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

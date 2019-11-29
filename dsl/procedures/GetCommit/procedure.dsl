@@ -17,11 +17,11 @@ procedure 'Get Commit', description: '''This procedure retrieves a commit data f
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        resourceName = '$[/myJob/flowpdkResource]'
+        resourceName = '$[flowpdkResource]'
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: aebbb078774281cc039330f15443c293 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: faccb1454a6e8c80a5370f5d5b09f6b5 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"

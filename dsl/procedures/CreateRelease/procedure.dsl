@@ -17,11 +17,11 @@ procedure 'Create Release', description: '''This procedure can create a new Gith
         shell = 'ec-groovy'
         shell = 'ec-groovy -cp $[/myJob/flowpdk_classpath]'
 
-        resourceName = '$[/myJob/flowpdkResource]'
+        resourceName = '$[flowpdkResource]'
 
         postProcessor = '''$[/myProject/perl/postpLoader]'''
     }
-// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: 33e97fda59f3a03a833b7814b23ccbd7 ===
+// DO NOT EDIT THIS BLOCK === procedure_autogen ends, checksum: aa2199102d377fbfe69ba21cbb7adab5 ===
 // Do not update the code above the line
 // procedure properties declaration can be placed in here, like
 // property 'property name', value: "value"
