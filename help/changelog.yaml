@@ -16,3 +16,5 @@
   - Added "Get Commit" procedure
   - Added endpoint and bearer authorization scheme to the configuration
   - Added binary dependencies handling
+3.0.1:
+  - Fixed setup procedure (with proper classpath calculation)

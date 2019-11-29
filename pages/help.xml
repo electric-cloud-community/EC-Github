@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on November 27, 2019</p>
+    <p>Revised on November 29, 2019</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -791,6 +791,13 @@ If not master, the branch will be created from the master branch.
     
 
     <h1 id="releaseNotes">Release Notes</h1>
+    
+    <h3>@PLUGIN_KEY@ 3.0.1</h3>
+    <ul>
+        
+        <li>Fixed setup procedure (with proper classpath calculation)</li>
+        
+    </ul>
     
     <h3>@PLUGIN_KEY@ 3.0.0</h3>
     <ul>
