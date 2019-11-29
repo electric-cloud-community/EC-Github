@@ -1,3 +1,4 @@
+// Do not change this file, it will completely overwritten over during flowpdk generate plugin
 procedure 'flowpdk-setup',
 description: 'Retrieves Groovy dependencies. This procedure can be used as a first step of the procedure which requires dependencies.', {
 

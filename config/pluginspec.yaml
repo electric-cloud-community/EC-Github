@@ -6,7 +6,6 @@ pluginInfo:
   authorUrl: pshubina@cloudbees.com
   category: Source Control
 
-
 configuration:
   checkConnection: true
   restConfigInfo:

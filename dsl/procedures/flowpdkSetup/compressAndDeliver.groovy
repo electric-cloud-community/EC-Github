@@ -1,3 +1,5 @@
+// Do not change this file, it will completely overwritten over during flowpdk generate plugin
+
 import java.security.MessageDigest
 import groovy.json.JsonOutput
 import java.util.zip.ZipEntry
@@ -52,8 +54,9 @@ File packDependencies(File agentFolder) {
     agentFolder.eachFileRecurse { File file ->
         if (!file.isDirectory() && !file.name.startsWith('.')) {
             def relative = agentFolder.toPath().relativize(file.toPath())
+            String rel = relative.toString().replaceAll('\\\\', '/')
             try {
-                zipFile.putNextEntry(new ZipEntry(relative.toString()))
+                zipFile.putNextEntry(new ZipEntry(rel))
                 def buffer = new byte[file.size()]
                 file.withInputStream {
                     zipFile.write(buffer, 0, it.read(buffer))

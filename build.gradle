@@ -1,16 +1,32 @@
-apply plugin: 'java'
+apply plugin: 'groovy'
 
 repositories{
     mavenCentral()
     maven {
         url 'http://artifactory.electric-cloud.com/artifactory/ec'
     }
+    flatDir {
+        dirs 'agent/deps/libs'
+    }
 }
 
 dependencies{
-    compile 'org.kohsuke:github-api:1.95'
+    implementation 'org.codehaus.groovy:groovy-all:2.5.8'
+    implementation 'org.kohsuke:github-api:1.95'
+    implementation 'com.electriccloud.plugins:flowpdf-groovy-lib:1.0.0-SNAPSHOT'
+
+    //That's ours
+    implementation 'com.electriccloud:commander-api-bindings:9.0.0-SNAPSHOT'
 }
 
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs = ['dsl/properties/groovy/lib']
+        }
+    }
+}
 
 task copyDependencies(type: Copy) {
     from configurations.compile

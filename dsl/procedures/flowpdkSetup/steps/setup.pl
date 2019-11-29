@@ -1,3 +1,4 @@
+# Do not change this file, it will completely overwritten over during flowpdk generate plugin
 use strict;
 use warnings;
 use JSON;
