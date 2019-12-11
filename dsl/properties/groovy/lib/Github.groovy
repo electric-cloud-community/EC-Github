@@ -1,6 +1,6 @@
 import com.electriccloud.client.groovy.ElectricFlow
-import com.electriccloud.flowpdf.*
-import com.electriccloud.flowpdf.exceptions.UnexpectedMissingValue
+import com.cloudbees.flowpdf.*
+import com.cloudbees.flowpdf.exceptions.UnexpectedMissingValue
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import org.kohsuke.github.GHAsset
@@ -242,6 +242,11 @@ class Github extends FlowPlugin {
         )
         Map<String, String> parameters = runtimeParameters.asMap
         List<String> files = parameters.files.split(/\n+/)
+
+        if (!parameters.destinationFolder){
+            parameters.destinationFolder = System.getProperty('user.dir')
+        }
+
         List<File> downloadedFiles = wrapper.downloadFiles(
             parameters.ownerName,
             parameters.repoName,

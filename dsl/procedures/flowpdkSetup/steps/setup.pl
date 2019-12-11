@@ -145,8 +145,9 @@ sub fetchFromDsl {
 sub deliverDependencies {
     my ($self) = @_;
 
-    my $resName = '$[resourceName]';
+    my $resName = '$[/myResource/name]';
     $self->ec->setProperty('/myJob/grabbedResource', $resName);
+    $self->ec->setProperty('/myJobStep/parent/flowpdkResource', $resName);
     $self->ec->setProperty('/myJob/flowpdkResource', $resName);
     logInfo "Grabbed resource $resName";
 
