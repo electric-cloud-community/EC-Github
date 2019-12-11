@@ -1,4 +1,4 @@
-import com.electriccloud.flowpdf.Log
+import com.cloudbees.flowpdf.Log
 import groovy.transform.Memoized
 import groovy.util.logging.Slf4j
 import org.kohsuke.github.*
