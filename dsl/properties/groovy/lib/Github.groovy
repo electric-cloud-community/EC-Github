@@ -444,16 +444,25 @@ class Github extends FlowPlugin {
         String endpoint = p.getParameter('endpoint')?.value ?: "https://api.github.com"
         log.info "Using endpoint $endpoint"
         ghBuilder.withEndpoint(endpoint)
-        if (p.isParameterExists('basic_credential')) {
-            Credential cred = p.getCredential('basic_credential')
-            ghBuilder.withPassword(cred.userName, cred.secretValue)
-            log.info("Using username and password for the GH Client: $cred.userName, *******")
-        } else if (p.isParameterExists('credential')) {
-            Credential cred = p.getCredential('credential')
-            ghBuilder.withPassword(cred.userName, cred.secretValue)
-            log.info("Using username and password for the GH Client: $cred.userName, *******")
 
-        } else if (p.isParameterExists('bearer_credential')) {
+        String authScheme = p.getRequiredParameter('authScheme').getValue()
+
+        if (authScheme == 'basic') {
+            String credentialParameterName = null
+            if (p.isParameterExists('basic_credential')) {
+                credentialParameterName = 'basic_credential'
+            } else if (p.isParameterExists('credential')) {
+                credentialParameterName = 'credential'
+            }
+
+            if (credentialParameterName == null) {
+                throw new UnexpectedMissingValue("No basic credential found in the plugin configuration")
+            }
+
+            Credential cred = p.getCredential(credentialParameterName)
+            ghBuilder.withPassword(cred.userName, cred.secretValue)
+            log.info("Using username and password for the GH Client: $cred.userName, *******")
+        } else if (authScheme == 'bearerToken' && p.isParameterHasValue('bearer_credential')) {
             Credential cred = p.getCredential('bearer_credential')
             ghBuilder.withOAuthToken(cred.secretValue)
             log.info "Using personal access token"
