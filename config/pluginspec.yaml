@@ -331,3 +331,44 @@ procedures:
         documentation: If checked, the old tag associated with the old release will be deleted.
         checkedValue: true
         uncheckedValue: false
+
+  - name: Find Pull Requests
+    description: This procedure will return all open PRs. If a branch is given, only PR with head at branch will be returned.
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+      - name: branchName
+        label: Branch Name
+        required: false
+        type: entry
+        documentation: Name of the HEAD branch (one that will be merged).
+    outputParameters:
+      prNum : Numbers of the found pull request(s).
+
+  - name: Add Issue Comment
+    description: This procedure can create comments in issues and pull requests.
+    shell: ec-groovy
+    hasConfig: true
+    parameters:
+      - name: repoName
+        required: true
+        type: entry
+        documentation: Repository name, in form owner/repo.
+        label: Repository Name
+      - name: issueNum
+        label: Issue or PR Num
+        required: true
+        type: entry
+        documentation: Id of the pull request or issue where comment will be created.
+      - name: commentBody
+        label: Comment
+        type: textarea
+        required: true
+        documentation: Content of the comment. Markdown can be used here.
+    outputParameters:
+      commentId: Id of the created comment

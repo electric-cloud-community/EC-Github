@@ -22,5 +22,11 @@ procedure 'flowpdk-setup', description: 'Delivers binary dependencies from the F
         defaultValue = ''
         type = 'entry'
     }
+
+    formalParameter 'dependsOnPlugins', {
+      required = '0'
+      defaultValue = ''
+      type = 'entry'
+    }
 }
 
