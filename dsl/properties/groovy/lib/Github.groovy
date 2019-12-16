@@ -1,21 +1,9 @@
-import com.electriccloud.client.groovy.ElectricFlow
 import com.cloudbees.flowpdf.*
 import com.cloudbees.flowpdf.exceptions.UnexpectedMissingValue
+import com.electriccloud.client.groovy.ElectricFlow
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import org.kohsuke.github.GHAsset
-import org.kohsuke.github.GHCommit
-import org.kohsuke.github.GHCommitState
-import org.kohsuke.github.GHCommitStatus
-import org.kohsuke.github.GHPullRequest
-import org.kohsuke.github.GHRelease
-import org.kohsuke.github.GHReleaseBuilder
-import org.kohsuke.github.GHRepository
-import org.kohsuke.github.GitHub
-import org.kohsuke.github.GitHubBuilder
-
-import java.nio.file.Files
-import java.nio.file.Path
+import org.kohsuke.github.*
 
 /**
  * Github
@@ -25,11 +13,11 @@ class Github extends FlowPlugin {
     @Override
     Map<String, Object> pluginInfo() {
         return [
-            pluginName         : '@PLUGIN_KEY@',
-            pluginVersion      : '@PLUGIN_VERSION@',
-            configFields       : ['config'],
-            configLocations    : ['ec_plugin_cfgs'],
-            defaultConfigValues: [:]
+                pluginName         : '@PLUGIN_KEY@',
+                pluginVersion      : '@PLUGIN_VERSION@',
+                configFields       : ['config'],
+                configLocations    : ['ec_plugin_cfgs'],
+                defaultConfigValues: [:]
         ]
     }
 
@@ -60,9 +48,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-            "createRepository was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "createRepository was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
         Map<String, String> parameters = runtimeParameters.asMap
         String owner = parameters.owner
@@ -92,12 +80,12 @@ class Github extends FlowPlugin {
         }?.findAll { it }
 
         GHRepository repository = wrapper.createRepository(owner, repo, [
-            description          : parameters.description,
-            private              : parameters.public == 'false',
-            teams                : teams,
-            branchProtectionRules: branchProtectionRules,
-            addLicense           : parameters.addLicense == "true",
-            licenseFile          : parameters.licenseFile,
+                description          : parameters.description,
+                private              : parameters.public == 'false',
+                teams                : teams,
+                branchProtectionRules: branchProtectionRules,
+                addLicense           : parameters.addLicense == "true",
+                licenseFile          : parameters.licenseFile,
         ])
 
         log.info "Repository: ${repository.htmlUrl}"
@@ -121,9 +109,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-            "deleteRelease was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "deleteRelease was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
         Map<String, String> parameters = runtimeParameters.asMap
         wrapper.deleteTag(parameters.repoName, parameters.tagName)
@@ -148,17 +136,17 @@ class Github extends FlowPlugin {
     def downloadReleaseAsset(StepParameters p, StepResult sr) {
         /* Log is automatically available from the parent class */
         log.info(
-            "downloadReleaseAsset was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            p.toString()
+                "downloadReleaseAsset was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                p.toString()
         )
 
 
         String repoName = p.getRequiredParameter('repoName').value
         Map<String, String> parameters = p.asMap as Map<String, String>
         wrapper.downloadReleaseAsset(repoName, parameters.tagName,
-            parameters.assetName,
-            parameters.assetPath)
+                parameters.assetName,
+                parameters.assetPath)
     }
 /**
  * uploadFiles - Upload Files/Upload Files
@@ -185,9 +173,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-            "uploadFiles was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "uploadFiles was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         Context context = getContext()
@@ -206,8 +194,8 @@ class Github extends FlowPlugin {
         List<GHCommit> commits = wrapper.uploadFiles(repoName, p.sourceDirectory, files, mapping, branch)
         if (p.createPr && p.branch != 'master') {
             GHPullRequest pr = wrapper.createPullRequest(
-                repoName,
-                p.branch
+                    repoName,
+                    p.branch
             )
             sr.setReportUrl("${pr.repository.name}#${pr.number}", pr.htmlUrl.toString())
             FlowAPI.setFlowProperty("/myJob/githubPr/url", pr.htmlUrl.toString())
@@ -236,23 +224,23 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-            "getFiles was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "getFiles was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
         Map<String, String> parameters = runtimeParameters.asMap
         List<String> files = parameters.files.split(/\n+/)
 
-        if (!parameters.destinationFolder){
+        if (!parameters.destinationFolder) {
             parameters.destinationFolder = System.getProperty('user.dir')
         }
 
         List<File> downloadedFiles = wrapper.downloadFiles(
-            parameters.ownerName,
-            parameters.repoName,
-            files,
-            parameters.ref,
-            parameters.destinationFolder
+                parameters.ownerName,
+                parameters.repoName,
+                files,
+                parameters.ref,
+                parameters.destinationFolder
         )
 
         def summary = downloadedFiles.collect {
@@ -283,9 +271,9 @@ class Github extends FlowPlugin {
     def setCommitStatus(StepParameters runtimeParameters, StepResult sr) {
 
         log.info(
-            "setCommitStatus was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "setCommitStatus was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
         GitHub client = gh
@@ -339,9 +327,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-            "createRelease was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "createRelease was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
 
 
@@ -392,9 +380,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-            "getCommit was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            runtimeParameters.toString()
+                "getCommit was invoked with StepParameters",
+                /* runtimeParameters contains both configuration and procedure parameters */
+                runtimeParameters.toString()
         )
         GitHub client = gh
         String repoName = runtimeParameters.getRequiredParameter('repoName').value
@@ -412,12 +400,12 @@ class Github extends FlowPlugin {
         FlowAPI.setFlowProperty("${resultProperty}/author/email", commit.commitShortInfo.author.email)
 
         Map commitData = [
-            message   : commit.commitShortInfo.message,
-            commitDate: commit.commitShortInfo.commitDate.toString(),
-            author    : [
-                name : commit.commitShortInfo.author.name,
-                email: commit.commitShortInfo.author.email
-            ]
+                message   : commit.commitShortInfo.message,
+                commitDate: commit.commitShortInfo.commitDate.toString(),
+                author    : [
+                        name : commit.commitShortInfo.author.name,
+                        email: commit.commitShortInfo.author.email
+                ]
         ]
 
         FlowAPI.setFlowProperty("${resultProperty}/json", JsonOutput.toJson(commitData))
@@ -427,6 +415,85 @@ class Github extends FlowPlugin {
         sr.apply()
         log.info("step Get Commit has been finished")
     }
+
+
+    /**
+     * addIssueComment - Add Issue Comment/Add Issue Comment
+     * Add your code into this method and it will be called when the step runs
+     * @param config (required: true)
+     * @param repoName (required: true)
+     * @param issueNum (required: true)
+     * @param commentBody (required: true)
+
+     */
+    def addIssueComment(StepParameters p, StepResult sr) {
+        String repoName = p.getRequiredParameter('repoName')
+        String issueNum = p.getRequiredParameter('issueNum')
+        String commentBody = p.getRequiredParameter('commentBody')
+
+        if (repoName.indexOf("/") == -1) {
+            throw new RuntimeException("Repository should be in form of <owner>/<repo>")
+        }
+        if (!(issueNum =~ /^[0-9]+$/)) {
+            throw new RuntimeException("Issue/PR Id is not a number")
+        }
+
+        def comment = wrapper.createComment(repoName, issueNum as int, commentBody)
+
+        // Setting job step summary to the config name
+        sr.setJobStepSummary('Created a comment.')
+        sr.setOutcomeProperty('/myCall/commentId', comment.getId() as String)
+        sr.apply()
+        log.info("step Add Comment has been finished")
+    }
+
+/**
+ * findPullRequests - Find Pull Requests/Find Pull Requests
+ * Add your code into this method and it will be called when the step runs
+ * @param config (required: true)
+ * @param repoName (required: true)
+ * @param branchName (required: false)
+
+ */
+    def findPullRequests(StepParameters p, StepResult sr) {
+        String repoName = p.getRequiredParameter('repoName')
+
+        List<GHPullRequest> list = wrapper.getOpenPullRequests(repoName)
+
+        if (p.isParameterHasValue('branchName')) {
+            String refName = p.getParameter('branchName').getValue()
+            list = list.findAll { it -> it.getHead().getRef() == refName }
+        }
+
+        int count = list.size()
+
+        if (!list.size()) {
+            sr.setJobStepOutcome('warning')
+            sr.setJobStepSummary('No open pull requests were found for ' + repoName)
+            return
+        }
+
+        for (GHPullRequest pr : list) {
+            String num = pr.getNumber()
+
+            sr.setOutcomeProperty("/myCall/${num}/id", pr.getId() as String)
+            sr.setOutcomeProperty("/myCall/${num}/title", pr.getTitle())
+            sr.setOutcomeProperty("/myCall/${num}/branch", pr.getHead().getRef())
+            sr.setOutcomeProperty("/myCall/${num}/base", pr.getBase().getRef())
+            sr.setOutcomeProperty("/myCall/${num}/author", pr.getUser().getName())
+        }
+
+        String prNums = list.collect({ it -> it.getNumber() }).join(', ')
+
+        sr.setOutcomeProperty("/myCall/PRNums", prNums)
+        sr.setOutcomeProperty("/myCall/PRcount", count as String)
+        sr.setOutputParameter('prNums', prNums)
+
+        // Setting job step summary to the config name
+        sr.setJobStepSummary("Found ${count} pull request(s)");
+        sr.apply()
+    }
+
 // === step ends ===
 
 
@@ -444,16 +511,25 @@ class Github extends FlowPlugin {
         String endpoint = p.getParameter('endpoint')?.value ?: "https://api.github.com"
         log.info "Using endpoint $endpoint"
         ghBuilder.withEndpoint(endpoint)
-        if (p.isParameterExists('basic_credential')) {
-            Credential cred = p.getCredential('basic_credential')
-            ghBuilder.withPassword(cred.userName, cred.secretValue)
-            log.info("Using username and password for the GH Client: $cred.userName, *******")
-        } else if (p.isParameterExists('credential')) {
-            Credential cred = p.getCredential('credential')
-            ghBuilder.withPassword(cred.userName, cred.secretValue)
-            log.info("Using username and password for the GH Client: $cred.userName, *******")
 
-        } else if (p.isParameterExists('bearer_credential')) {
+        String authScheme = p.getRequiredParameter('authScheme').getValue()
+
+        if (authScheme == 'basic') {
+            String credentialParameterName = null
+            if (p.isParameterExists('basic_credential')) {
+                credentialParameterName = 'basic_credential'
+            } else if (p.isParameterExists('credential')) {
+                credentialParameterName = 'credential'
+            }
+
+            if (credentialParameterName == null) {
+                throw new UnexpectedMissingValue("No basic credential found in the plugin configuration")
+            }
+
+            Credential cred = p.getCredential(credentialParameterName)
+            ghBuilder.withPassword(cred.userName, cred.secretValue)
+            log.info("Using username and password for the GH Client: $cred.userName, *******")
+        } else if (authScheme == 'bearerToken' && p.isParameterHasValue('bearer_credential')) {
             Credential cred = p.getCredential('bearer_credential')
             ghBuilder.withOAuthToken(cred.secretValue)
             log.info "Using personal access token"
@@ -464,18 +540,18 @@ class Github extends FlowPlugin {
     }()
 
     String getRuntimeLink() {
-            ElectricFlow client = FlowAPI.getEc()
-            String link
-            try {
-                String pipelineRuntimeId = client.getProperty_0(propertyName: '/myPipelineRuntime/id')?.property?.value
-                String pipelineId = client.getProperty_0(propertyName: "/myPipeline/id")?.property?.value
-                link = '/flow/#pipeline-run/' + pipelineId + '/' + pipelineRuntimeId
-                //https://chronic3.electric-cloud.com/flow/#pipeline-run/e0e16734-d88c-11e9-926b-005056bb04e9/6b032f87-12b6-11ea-af15-005056bb380b
-            } catch (Throwable e) {
-                String jobId = System.getenv('COMMANDER_JOBID')
-                link = '/commander/link/jobDetails/jobs/' + jobId
-                // https://vivarium2/commander/link/jobDetails/jobs/9f599642-0498-11ea-b9cf-0242e3464664
-            }
+        ElectricFlow client = FlowAPI.getEc()
+        String link
+        try {
+            String pipelineRuntimeId = client.getProperty_0(propertyName: '/myPipelineRuntime/id')?.property?.value
+            String pipelineId = client.getProperty_0(propertyName: "/myPipeline/id")?.property?.value
+            link = '/flow/#pipeline-run/' + pipelineId + '/' + pipelineRuntimeId
+            //https://chronic3.electric-cloud.com/flow/#pipeline-run/e0e16734-d88c-11e9-926b-005056bb04e9/6b032f87-12b6-11ea-af15-005056bb380b
+        } catch (Throwable e) {
+            String jobId = System.getenv('COMMANDER_JOBID')
+            link = '/commander/link/jobDetails/jobs/' + jobId
+            // https://vivarium2/commander/link/jobDetails/jobs/9f599642-0498-11ea-b9cf-0242e3464664
+        }
 
         return 'http://$[/server/webServerHost]' + link
     }

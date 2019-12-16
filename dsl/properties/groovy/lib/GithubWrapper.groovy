@@ -1,6 +1,5 @@
 import com.cloudbees.flowpdf.Log
 import groovy.transform.Memoized
-import groovy.util.logging.Slf4j
 import org.kohsuke.github.*
 
 import java.nio.file.Files
@@ -81,8 +80,8 @@ class GithubWrapper {
         String url = "https://api.github.com/repos/$repoName/releases/assets/$asset.id"
         String basic = ":${password}".bytes.encodeBase64()
         byte[] bytes = new URL(url).getBytes(
-            requestProperties: [Accept       : 'application/octet-stream',
-                                authorization: "Basic $basic"]
+                requestProperties: [Accept       : 'application/octet-stream',
+                                    authorization: "Basic $basic"]
         )
         log.info "Received the asset content, size ${bytes.size()}"
 
@@ -306,7 +305,7 @@ class GithubWrapper {
         catch (Throwable e) {
             pr = repo.listPullRequests().find {
                 it.base.ref == base &&
-                    it.head.ref == head
+                        it.head.ref == head
             }
             if (!pr) {
                 throw e
@@ -404,21 +403,21 @@ class GithubWrapper {
                 } else {
                     String sha = content.sha
                     GHContentUpdateResponse response = repository.createContent()
-                        .path(LICENSE)
-                        .message("Updated LICENSE")
-                        .sha(sha)
-                        .content(licenseFile.text)
-                        .commit()
+                            .path(LICENSE)
+                            .message("Updated LICENSE")
+                            .sha(sha)
+                            .content(licenseFile.text)
+                            .commit()
                     log.info "Updated license: ${response.commit.SHA1}"
                     log.info response.commit.htmlUrl as String
                 }
             } catch (IOException e) {
                 log.info "License file does not exist in the repository"
                 GHContentUpdateResponse response = repository.createContent()
-                    .path(LICENSE)
-                    .content(licenseFile.text)
-                    .message("Created LICENSE")
-                    .commit()
+                        .path(LICENSE)
+                        .content(licenseFile.text)
+                        .message("Created LICENSE")
+                        .commit()
                 log.info "Created License: ${response.commit.SHA1}"
                 log.info response.commit.htmlUrl as String
             }
@@ -435,12 +434,12 @@ class GithubWrapper {
             branch = repository.getBranch(branchName)
         } catch (IOException e) {
             repository
-                .createContent()
-                .branch(branchName)
-                .message("Created branch ${branchName}")
-                .content("")
-                .path("README.md")
-                .commit()
+                    .createContent()
+                    .branch(branchName)
+                    .message("Created branch ${branchName}")
+                    .content("")
+                    .path("README.md")
+                    .commit()
             branch = repository.getBranch(branchName)
         }
         return branch
@@ -493,6 +492,20 @@ class GithubWrapper {
         GHBranch parentBranch = repo.getBranch(from)
         GHRef ref = repo.createRef("refs/head/${branchName}", parentBranch.SHA1)
         println "Created a new branch: $branchName, ${ref.url}"
+    }
+
+    List<GHPullRequest> getOpenPullRequests(String repoName) {
+        GHRepository repo = client.getRepository(repoName)
+        return repo.getPullRequests(GHIssueState.OPEN)
+    }
+
+    def createComment(String repoName, int issueId, String commentBody) {
+        assert repoName && issueId && commentBody: "Wrong arguments"
+
+        GHRepository repo = client.getRepository(repoName)
+        GHIssue pr = repo.getIssue(issueId)
+
+        return pr.comment(commentBody)
     }
 
 
