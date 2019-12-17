@@ -178,20 +178,20 @@ class Github extends FlowPlugin {
                 runtimeParameters.toString()
         )
 
-        Context context = getContext()
         Map<String, String> p = runtimeParameters.asMap
-        String repoName = p.ownerName + '/' + p.repoName
+        String repoName = runtimeParameters.getRequiredParameter('ownerName').value + '/' + runtimeParameters.getRequiredParameter('repoName').value
         String mappingRaw = p.mapping
         Map mapping = [:]
         if (mappingRaw) {
             mapping = new JsonSlurper().parseText(mappingRaw)
         }
-        String branch = p.branch
+        String branch = p.branch ?: 'master'
         List<String> files = []
         if (p.files) {
             files = p.files.split(/\n+/)
         }
-        List<GHCommit> commits = wrapper.uploadFiles(repoName, p.sourceDirectory, files, mapping, branch)
+        String sourceDirectory = p.sourceDirectory ?: ''
+        List<GHCommit> commits = wrapper.uploadFiles(repoName, sourceDirectory, files, mapping, branch)
         if (p.createPr && p.branch != 'master') {
             GHPullRequest pr = wrapper.createPullRequest(
                     repoName,

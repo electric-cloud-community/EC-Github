@@ -243,6 +243,7 @@ class GithubWrapper {
         if (!source.isAbsolute()) {
             source = new File(System.getProperty('user.dir'), sourceDirectory)
         }
+        log.info "Uploading files from $source.absolutePath"
 
         try {
             repo.getBranch(branch)
@@ -254,6 +255,7 @@ class GithubWrapper {
             GHRef ref = repo.createRef("refs/heads/$branch", repo.getBranch('master').getSHA1())
             log.info "Created branch " + ref.object.sha
         }
+
         List<GHCommit> commits = []
 
         for (String fpath in files) {
