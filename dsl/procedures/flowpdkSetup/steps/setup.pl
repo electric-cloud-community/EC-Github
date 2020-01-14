@@ -148,23 +148,31 @@ sub setupParentPlugins {
     for my $plugin (split(/\s+/ => $pluginsList)) {
         logInfo "Found external plugin dependency: $plugin";
 
-        my $jobId = $self->ec()->runProcedure({
-            projectName => "/plugins/$plugin/project",
-            procedureName => "flowpdk-setup",
-        })->findvalue('//jobId')->string_value;
+        # my $jobId = $self->ec()->runProcedure({
+        #     projectName => "/plugins/$plugin/project",
+        #     procedureName => "flowpdk-setup",
+        #     resourceName => '$[resourceName]'
+        # })->findvalue('//jobId')->string_value;
 
-        logInfo "Launched setup job for the plugin $plugin, jobId: $jobId";
-        my $status = $self->ec()->getJobStatus($jobId);
+        my $jobStepId = $self->ec->createJobStep({
+            subproject => "/plugins/$plugin/project",
+            subprocedure => 'flowpdk-setup',
+            resourceName => '$[resourceName]',
+            errorHandling => 'failProcedure',
+            stepName => "$plugin setup"
+        })->findvalue('//jobStepId');
 
-        logInfo "Waiting for the setup job...";
+        logInfo "Launched setup job step for the plugin $plugin, jobStepId: $jobStepId";
+
+        my $status = $self->ec()->getJobStepStatus({
+            jobStepId => $jobStepId
+        });
+
+        logInfo "Waiting for the setup job step...";
 
         while($status->findvalue('//status') ne 'completed') {
             sleep 5;
-            $status = $self->ec()->getJobStatus($jobId);
-        }
-        my $outcome = $status->findvalue('//outcome');
-        if ($outcome eq 'error') {
-            die "Setup job for the parent plugin failed";
+            $status = $self->ec()->getJobStepStatus($jobStepId);
         }
     }
 }
@@ -190,7 +198,9 @@ sub deliverDependencies {
     $self->ec->setProperty('/myJobStep/parent/flowpdkResource', $resName);
     $self->ec->setProperty('/myJob/flowpdkResource', $resName);
 
-    my $dependsOnPlugins = $self->ec->getPropertyValue('dependsOnPlugins');
+    my $dependsOnPlugins = eval {
+        $self->ec->getPropertyValue('dependsOnPlugins')
+    };
     if ($dependsOnPlugins) {
         $self->setupParentPlugins($dependsOnPlugins);
     }
@@ -208,6 +218,7 @@ sub deliverDependencies {
     logInfo "Local cache failed, reloading files";
 
     my $source = $self->ec->getPropertyValue('/server/settings/pluginsDirectory') .'/@PLUGIN_NAME@/agent';
+    logInfo "Fetching dependencies from $source";
     my $dest = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent');
     mkpath($dest);
     my $dependencies;
@@ -250,7 +261,9 @@ sub configureClasspath {
     my ($self) = @_;
 
     # Now configuring classpath
-    my $generateClasspathFromFolders = $self->ec->getPropertyValue('generateClasspathFromFolders');
+    my $generateClasspathFromFolders = eval {
+        $self->ec->getPropertyValue('generateClasspathFromFolders')
+    };
     return unless $generateClasspathFromFolders;
 
     logInfo "generateClasspathFromFolders: $generateClasspathFromFolders";
@@ -260,12 +273,12 @@ sub configureClasspath {
     for my $folder (split /\,\s*/ => $generateClasspathFromFolders) {
         my $path = File::Spec->catfile($ENV{COMMANDER_PLUGINS}, '@PLUGIN_NAME@/agent/' . $folder);
         if (-d $path) {
-            if ($path !~ /\/$/) {
-                $path .= '/';
-            }
-            $path .= '*';
-            logInfo "Adding folder $path to classpath";
-            push @jars, $path;
+            my $libPath = File::Spec->catfile($path, "*");
+            logInfo "Adding folder $libPath to classpath";
+            push @jars, $libPath;
+        }
+        else {
+            logInfo "The path $path is not a directory";
         }
     }
 
@@ -278,8 +291,9 @@ sub configureClasspath {
     unless($classpath) {
         die "Failed to generate classpath: classpath is empty.";
     }
-    $self->ec->setProperty({propertyName => '/myJob/flowpdk_classpath', value => $classpath});
+    $self->ec->setProperty({propertyName => '/myJob/flowpdk_classpath', value => qq{"$classpath"}});
     logInfo "Classpath: $classpath\n";
+
 }
 
 sub copyGrapes {
