@@ -10,14 +10,17 @@ import org.kohsuke.github.*
  */
 class Github extends FlowPlugin {
 
+    //For downloading assets
+    private String password
+
     @Override
     Map<String, Object> pluginInfo() {
         return [
-                pluginName         : '@PLUGIN_KEY@',
-                pluginVersion      : '@PLUGIN_VERSION@',
-                configFields       : ['config'],
-                configLocations    : ['ec_plugin_cfgs'],
-                defaultConfigValues: [:]
+            pluginName         : '@PLUGIN_KEY@',
+            pluginVersion      : '@PLUGIN_VERSION@',
+            configFields       : ['config'],
+            configLocations    : ['ec_plugin_cfgs'],
+            defaultConfigValues: [:]
         ]
     }
 
@@ -48,9 +51,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-                "createRepository was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "createRepository was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
         Map<String, String> parameters = runtimeParameters.asMap
         String owner = parameters.owner
@@ -80,12 +83,12 @@ class Github extends FlowPlugin {
         }?.findAll { it }
 
         GHRepository repository = wrapper.createRepository(owner, repo, [
-                description          : parameters.description,
-                private              : parameters.public == 'false',
-                teams                : teams,
-                branchProtectionRules: branchProtectionRules,
-                addLicense           : parameters.addLicense == "true",
-                licenseFile          : parameters.licenseFile,
+            description          : parameters.description,
+            private              : parameters.public == 'false',
+            teams                : teams,
+            branchProtectionRules: branchProtectionRules,
+            addLicense           : parameters.addLicense == "true",
+            licenseFile          : parameters.licenseFile,
         ])
 
         log.info "Repository: ${repository.htmlUrl}"
@@ -109,9 +112,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-                "deleteRelease was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "deleteRelease was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
         Map<String, String> parameters = runtimeParameters.asMap
         wrapper.deleteTag(parameters.repoName, parameters.tagName)
@@ -136,17 +139,20 @@ class Github extends FlowPlugin {
     def downloadReleaseAsset(StepParameters p, StepResult sr) {
         /* Log is automatically available from the parent class */
         log.info(
-                "downloadReleaseAsset was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                p.toString()
+            "downloadReleaseAsset was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            p.toString()
         )
 
 
         String repoName = p.getRequiredParameter('repoName').value
         Map<String, String> parameters = p.asMap as Map<String, String>
-        wrapper.downloadReleaseAsset(repoName, parameters.tagName,
-                parameters.assetName,
-                parameters.assetPath)
+        wrapper.downloadReleaseAsset(repoName,
+            parameters.tagName,
+            parameters.assetName,
+            parameters.assetPath,
+            password
+        )
     }
 /**
  * uploadFiles - Upload Files/Upload Files
@@ -173,9 +179,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-                "uploadFiles was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "uploadFiles was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
 
         Map<String, String> p = runtimeParameters.asMap
@@ -194,8 +200,8 @@ class Github extends FlowPlugin {
         List<GHCommit> commits = wrapper.uploadFiles(repoName, sourceDirectory, files, mapping, branch)
         if (p.createPr && p.branch != 'master') {
             GHPullRequest pr = wrapper.createPullRequest(
-                    repoName,
-                    p.branch
+                repoName,
+                p.branch
             )
             sr.setReportUrl("${pr.repository.name}#${pr.number}", pr.htmlUrl.toString())
             FlowAPI.setFlowProperty("/myJob/githubPr/url", pr.htmlUrl.toString())
@@ -224,9 +230,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-                "getFiles was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "getFiles was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
         Map<String, String> parameters = runtimeParameters.asMap
         List<String> files = parameters.files.split(/\n+/)
@@ -236,11 +242,11 @@ class Github extends FlowPlugin {
         }
 
         List<File> downloadedFiles = wrapper.downloadFiles(
-                parameters.ownerName,
-                parameters.repoName,
-                files,
-                parameters.ref,
-                parameters.destinationFolder
+            parameters.ownerName,
+            parameters.repoName,
+            files,
+            parameters.ref,
+            parameters.destinationFolder
         )
 
         def summary = downloadedFiles.collect {
@@ -271,9 +277,9 @@ class Github extends FlowPlugin {
     def setCommitStatus(StepParameters runtimeParameters, StepResult sr) {
 
         log.info(
-                "setCommitStatus was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "setCommitStatus was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
 
         GitHub client = gh
@@ -327,9 +333,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-                "createRelease was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "createRelease was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
 
 
@@ -380,9 +386,9 @@ class Github extends FlowPlugin {
 
         /* Log is automatically available from the parent class */
         log.info(
-                "getCommit was invoked with StepParameters",
-                /* runtimeParameters contains both configuration and procedure parameters */
-                runtimeParameters.toString()
+            "getCommit was invoked with StepParameters",
+            /* runtimeParameters contains both configuration and procedure parameters */
+            runtimeParameters.toString()
         )
         GitHub client = gh
         String repoName = runtimeParameters.getRequiredParameter('repoName').value
@@ -400,12 +406,12 @@ class Github extends FlowPlugin {
         FlowAPI.setFlowProperty("${resultProperty}/author/email", commit.commitShortInfo.author.email)
 
         Map commitData = [
-                message   : commit.commitShortInfo.message,
-                commitDate: commit.commitShortInfo.commitDate.toString(),
-                author    : [
-                        name : commit.commitShortInfo.author.name,
-                        email: commit.commitShortInfo.author.email
-                ]
+            message   : commit.commitShortInfo.message,
+            commitDate: commit.commitShortInfo.commitDate.toString(),
+            author    : [
+                name : commit.commitShortInfo.author.name,
+                email: commit.commitShortInfo.author.email
+            ]
         ]
 
         FlowAPI.setFlowProperty("${resultProperty}/json", JsonOutput.toJson(commitData))
@@ -498,12 +504,6 @@ class Github extends FlowPlugin {
 
 
     @Lazy
-    GithubWrapper wrapper = {
-        GithubWrapper wrapper = new GithubWrapper(gh, this.log)
-        return wrapper
-    }()
-
-    @Lazy
     GitHub gh = {
         Context c = getContext()
         StepParameters p = c.getRuntimeParameters()
@@ -513,7 +513,6 @@ class Github extends FlowPlugin {
         ghBuilder.withEndpoint(endpoint)
 
         String authScheme = p.getRequiredParameter('authScheme').getValue()
-
         if (authScheme == 'basic') {
             String credentialParameterName = null
             if (p.isParameterExists('basic_credential')) {
@@ -527,16 +526,24 @@ class Github extends FlowPlugin {
             }
 
             Credential cred = p.getCredential(credentialParameterName)
+            password = cred.secretValue
             ghBuilder.withPassword(cred.userName, cred.secretValue)
             log.info("Using username and password for the GH Client: $cred.userName, *******")
         } else if (authScheme == 'bearerToken' && p.isParameterHasValue('bearer_credential')) {
             Credential cred = p.getCredential('bearer_credential')
             ghBuilder.withOAuthToken(cred.secretValue)
+            password = cred.secretValue
             log.info "Using personal access token"
         } else {
             throw new UnexpectedMissingValue("No credential found in the plugin configuration")
         }
         return ghBuilder.build()
+    }()
+
+    @Lazy
+    GithubWrapper wrapper = {
+        GithubWrapper wrapper = new GithubWrapper(gh, this.log)
+        return wrapper
     }()
 
     String getRuntimeLink() {

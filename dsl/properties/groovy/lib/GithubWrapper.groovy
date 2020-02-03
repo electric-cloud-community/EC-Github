@@ -8,6 +8,7 @@ import java.nio.file.Path
 class GithubWrapper {
     GitHub client
     String password
+    String username
 
     Log log
 
@@ -15,6 +16,7 @@ class GithubWrapper {
 
     GithubWrapper(String username, String password) {
         this.password = password
+        this.username = username
         client = GitHub.connect(username, password)
     }
 
@@ -60,7 +62,7 @@ class GithubWrapper {
     }
 
 
-    def downloadReleaseAsset(String repoName, String tagName, String assetName, String assetPath) {
+    def downloadReleaseAsset(String repoName, String tagName, String assetName, String assetPath, String password) {
         GHRepository repository = client.getRepository(repoName)
         GHRelease release = repository.getReleaseByTagName(tagName)
         GHAsset asset = release.assets.find { it.name == assetName }
@@ -78,11 +80,12 @@ class GithubWrapper {
         log.info "Writing to file $dest.absolutePath"
 
         String url = "https://api.github.com/repos/$repoName/releases/assets/$asset.id"
-        String basic = ":${password}".bytes.encodeBase64()
+        String basic = "${password}:".bytes.encodeBase64()
         byte[] bytes = new URL(url).getBytes(
                 requestProperties: [Accept       : 'application/octet-stream',
-                                    authorization: "Basic $basic"]
+                                    Authorization: "Basic $basic"]
         )
+
         log.info "Received the asset content, size ${bytes.size()}"
 
         dest.withOutputStream { os ->
