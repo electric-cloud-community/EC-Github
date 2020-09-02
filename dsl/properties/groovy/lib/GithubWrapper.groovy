@@ -26,21 +26,22 @@ class GithubWrapper {
     }
 
 
-    GHPullRequest createPullRequest(String ownerName, String repoName, String sourceBranch, String destBranch, Map parameters) {
+    GHPullRequest createPullRequest(String repoName, String head, String base, Map parameters) {
         GHRepository repository
         try {
-            repository = client.getRepository("${ownerName}/${repoName}")
+            repository = client.getRepository(repoName)
         } catch (IOException e) {
-            log.info "Repository ${ownerName}/${repoName} does not exist"
+            log.info "Repository ${repoName} does not exist"
             throw e
         }
         String title = parameters.title
         if (!title) {
-            String lastCommitSha = repository.getBranch(sourceBranch).SHA1
+            String lastCommitSha = repository.getBranch(head).SHA1
             String lastCommitMessage = repository.getCommit(lastCommitSha).commitShortInfo.message
             title = lastCommitMessage
+            log.info "Using title ${title}"
         }
-        GHPullRequest request = repository.createPullRequest(title, sourceBranch, destBranch, "")
+        GHPullRequest request = repository.createPullRequest(title, head, base, parameters.body ?: '')
         log.info "Created Pull Request: ${request.htmlUrl}"
         log.info "Mergeable: ${request.mergeable}"
 

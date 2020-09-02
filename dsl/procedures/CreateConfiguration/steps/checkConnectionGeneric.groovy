@@ -1,5 +1,5 @@
 
-// DO NOT EDIT THIS BLOCK === check_connection starts ===
+// DO NOT EDIT THIS BLOCK BELOW=== check_connection starts ===
 import groovy.json.JsonSlurper
 import com.electriccloud.client.groovy.ElectricFlow
 import groovyx.net.http.HTTPBuilder
@@ -82,10 +82,12 @@ http.request(GET, TEXT) { req ->
   headers.accept = '*'
 
   if (checkConnectionMeta.headers) {
-    headers.putAll(checkConnectionMeta.headers)
+    def h = checkConnectionMeta.headers
+    h.each {k, v ->
+      headers.put(k.toLowerCase(), v)
+    }
     println "Added headers: $checkConnectionMeta.headers"
   }
-
   uri.query = [:]
 
   boolean uriChanged = false
@@ -179,12 +181,8 @@ def fetchQuery(String uri) {
 
 def augmentUri(path, uri) {
     uri = uri.split(/\?/).getAt(0)
-    if (path.endsWith('/') || uri.startsWith('/')) {
-        path = path + uri
-    }
-    else {
-        path = path + '/' + uri
-    }
-    return path
+    p = path + uri
+    p = p.replaceAll(/\/+/, '/')
+    return p
 }
-// DO NOT EDIT THIS BLOCK === check_connection ends, checksum: 9ce53d3266b0ec2732619149efe59907 ===
+// DO NOT EDIT THIS BLOCK ABOVE ^^^=== check_connection ends, checksum: 1c032f81c2fba7922e86dd9edd8fb54a ===

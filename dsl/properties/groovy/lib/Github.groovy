@@ -24,29 +24,29 @@ class Github extends FlowPlugin {
         ]
     }
 
-/**
- * createRepository - Create Repository/Create Repository
- * Add your code into this method and it will be called when the step runs
+    /**
+     * createRepository - Create Repository/Create Repository
+     * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+     * @param config (required: true)
 
- * @param owner (required: true)
+     * @param owner (required: true)
 
- * @param repo (required: true)
+     * @param repo (required: true)
 
- * @param description (required: )
+     * @param description (required: )
 
- * @param public (required: )
+     * @param public (required: )
 
- * @param teams (required: )
+     * @param teams (required: )
 
- * @param branchProtectionRules (required: )
+     * @param branchProtectionRules (required: )
 
- * @param addLicense (required: )
+     * @param addLicense (required: )
 
- * @param licenseFile (required: )
+     * @param licenseFile (required: )
 
- */
+     */
     def createRepository(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
@@ -97,17 +97,18 @@ class Github extends FlowPlugin {
         sr.apply()
         log.info("step Create Repository has been finished")
     }
-/**
- * deleteRelease - Delete Release/Delete Release
- * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+    /**
+     * deleteRelease - Delete Release/Delete Release
+     * Add your code into this method and it will be called when the step runs
 
- * @param repoName (required: true)
+     * @param config (required: true)
 
- * @param tagName (required: true)
+     * @param repoName (required: true)
 
- */
+     * @param tagName (required: true)
+
+     */
     def deleteRelease(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
@@ -121,30 +122,23 @@ class Github extends FlowPlugin {
 
         log.info("step Delete Release has been finished")
     }
-/**
- * downloadReleaseAsset - Download Release Asset/Download Release Asset
- * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+    /**
+     * downloadReleaseAsset - Download Release Asset/Download Release Asset
+     * Add your code into this method and it will be called when the step runs
 
- * @param repoName (required: true)
+     * @param config (required: true)
 
- * @param tagName (required: true)
+     * @param repoName (required: true)
 
- * @param assetName (required: true)
+     * @param tagName (required: true)
 
- * @param assetPath (required: false)
+     * @param assetName (required: true)
 
- */
+     * @param assetPath (required: false)
+
+     */
     def downloadReleaseAsset(StepParameters p, StepResult sr) {
-        /* Log is automatically available from the parent class */
-        log.info(
-            "downloadReleaseAsset was invoked with StepParameters",
-            /* runtimeParameters contains both configuration and procedure parameters */
-            p.toString()
-        )
-
-
         String repoName = p.getRequiredParameter('repoName').value
         Map<String, String> parameters = p.asMap as Map<String, String>
         wrapper.downloadReleaseAsset(repoName,
@@ -154,27 +148,28 @@ class Github extends FlowPlugin {
             password
         )
     }
-/**
- * uploadFiles - Upload Files/Upload Files
- * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+    /**
+     * uploadFiles - Upload Files/Upload Files
+     * Add your code into this method and it will be called when the step runs
 
- * @param ownerName (required: true)
+     * @param config (required: true)
 
- * @param repoName (required: true)
+     * @param ownerName (required: true)
 
- * @param sourceDirectory (required: false)
+     * @param repoName (required: true)
 
- * @param mapping (required: )
+     * @param sourceDirectory (required: false)
 
- * @param files (required: )
+     * @param mapping (required: )
 
- * @param branch (required: )
+     * @param files (required: )
 
- * @param createPr (required: )
+     * @param branch (required: )
 
- */
+     * @param createPr (required: )
+
+     */
     def uploadFiles(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
@@ -209,23 +204,24 @@ class Github extends FlowPlugin {
         sr.apply()
         log.info("step Upload Files has been finished")
     }
-/**
- * getFiles - Get Files/Get Files
- * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+    /**
+     * getFiles - Get Files/Get Files
+     * Add your code into this method and it will be called when the step runs
 
- * @param ownerName (required: true)
+     * @param config (required: true)
 
- * @param repoName (required: true)
+     * @param ownerName (required: true)
 
- * @param files (required: true)
+     * @param repoName (required: true)
 
- * @param destinationFolder (required: false)
+     * @param files (required: true)
 
- * @param ref (required: false)
+     * @param destinationFolder (required: false)
 
- */
+     * @param ref (required: false)
+
+     */
     def getFiles(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
@@ -257,23 +253,24 @@ class Github extends FlowPlugin {
 
         log.info("step Get Files has been finished")
     }
-/**
- * setCommitStatus - Set Commit Status/Set Commit Status
- * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+    /**
+     * setCommitStatus - Set Commit Status/Set Commit Status
+     * Add your code into this method and it will be called when the step runs
 
- * @param repoName (required: true)
+     * @param config (required: true)
 
- * @param sha (required: true)
+     * @param repoName (required: true)
 
- * @param state (required: true)
+     * @param sha (required: true)
 
- * @param targetUrl (required: false)
+     * @param state (required: true)
 
- * @param description (required: false)
+     * @param targetUrl (required: false)
 
- */
+     * @param description (required: false)
+
+     */
     def setCommitStatus(StepParameters runtimeParameters, StepResult sr) {
 
         log.info(
@@ -285,7 +282,43 @@ class Github extends FlowPlugin {
         GitHub client = gh
         GHRepository repo = client.getRepository(runtimeParameters.getRequiredParameter('repoName').value)
         String commitSha = runtimeParameters.getRequiredParameter('sha').value
-        String state = runtimeParameters.getRequiredParameter('state').value
+        String state = runtimeParameters.getParameter('state')?.value
+        String mimic = runtimeParameters.getParameter('mimic')?.value
+        if (!mimic && !state) {
+            context.bailOut("Either state or mimic parameter should be provided")
+        }
+
+        if (state && mimic) {
+            log.warning("Either state or mimic should be provided, you provided both. state will be used.")
+        }
+        if (mimic && !state) {
+            def outcome
+            switch(mimic) {
+                case 'job':
+                    outcome = FlowAPI.getFlowProperty("/myJob/outcome").value
+                    log.info "Using outcome $outcome from the job"
+                    break
+                case 'pipelineRuntime':
+                    outcome = FlowAPI.getFlowProperty("/myPipelineRuntime/outcome").value
+                    log.info "Using outcome $outcome from the pipeline runtime"
+                    break
+                case 'stageRuntime':
+                    outcome = FlowAPI.getFlowProperty("/myPipelineStageRuntime/outcome").value
+                    log.info "Using outcome $outcome from the stage runtime"
+                    break
+                default:
+                    context.bailOut("Wrong mimic value: $mimic")
+            }
+
+            if (outcome != 'error') {
+                state = 'success'
+            }
+            else {
+                state = 'error'
+            }
+            log.info "Identified state as $state from the outcome $outcome"
+        }
+
         String targetUrl = runtimeParameters.getParameter('targetUrl')?.value
         if (!targetUrl) {
             targetUrl = getRuntimeLink()
@@ -304,31 +337,32 @@ class Github extends FlowPlugin {
         sr.setJobStepSummary("Posted commit status successfully")
         sr.apply()
     }
-/**
- * createRelease - Create Release/Create Release
- * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+    /**
+     * createRelease - Create Release/Create Release
+     * Add your code into this method and it will be called when the step runs
 
- * @param repoName (required: true)
+     * @param config (required: true)
 
- * @param updateAction (required: true)
+     * @param repoName (required: true)
 
- * @param releaseName (required: )
+     * @param updateAction (required: true)
 
- * @param tagName (required: true)
+     * @param releaseName (required: )
 
- * @param commitish (required: )
+     * @param tagName (required: true)
 
- * @param body (required: )
+     * @param commitish (required: )
 
- * @param assets (required: )
+     * @param body (required: )
 
- * @param prerelease (required: )
+     * @param assets (required: )
 
- * @param deleteOldTag (required: )
+     * @param prerelease (required: )
 
- */
+     * @param deleteOldTag (required: )
+
+     */
     def createRelease(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
@@ -369,19 +403,19 @@ class Github extends FlowPlugin {
     }
 
 
-/**
- * getCommit - Get Commit/Get Commit
- * Add your code into this method and it will be called when the step runs
+    /**
+     * getCommit - Get Commit/Get Commit
+     * Add your code into this method and it will be called when the step runs
 
- * @param config (required: true)
+     * @param config (required: true)
 
- * @param repoName (required: true)
+     * @param repoName (required: true)
 
- * @param sha (required: true)
+     * @param sha (required: true)
 
- * @param resultPropertySheet (required: )
+     * @param resultPropertySheet (required: )
 
- */
+     */
     def getCommit(StepParameters runtimeParameters, StepResult sr) {
 
         /* Log is automatically available from the parent class */
@@ -453,14 +487,14 @@ class Github extends FlowPlugin {
         log.info("step Add Comment has been finished")
     }
 
-/**
- * findPullRequests - Find Pull Requests/Find Pull Requests
- * Add your code into this method and it will be called when the step runs
- * @param config (required: true)
- * @param repoName (required: true)
- * @param branchName (required: false)
+    /**
+     * findPullRequests - Find Pull Requests/Find Pull Requests
+     * Add your code into this method and it will be called when the step runs
+     * @param config (required: true)
+     * @param repoName (required: true)
+     * @param branchName (required: false)
 
- */
+     */
     def findPullRequests(StepParameters p, StepResult sr) {
         String repoName = p.getRequiredParameter('repoName')
 
@@ -498,6 +532,88 @@ class Github extends FlowPlugin {
         // Setting job step summary to the config name
         sr.setJobStepSummary("Found ${count} pull request(s)");
         sr.apply()
+    }
+
+    /**
+    * setupWebhook - SetupWebhook/SetupWebhook
+    * Add your code into this method and it will be called when the step runs
+    * @param repositoryNames (required: )
+    * @param ec_trigger (required: )
+    * @param config (required: false)
+    * @param credential (required: )
+    
+    */
+    def setupWebhook(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        SetupWebhookParameters sp = SetupWebhookParameters.initParameters(p)
+
+        // Calling logger:
+        log.info p.asMap.get('repositoryNames')
+        log.info p.asMap.get('ec_trigger')
+        log.info p.asMap.get('config')
+        log.info p.asMap.get('credential')
+        
+
+        // Setting job step summary to the config name
+        sr.setJobStepSummary(p.getParameter('config').getValue() ?: 'null')
+
+        sr.setReportUrl("Sample Report", 'https://cloudbees.com')
+        sr.apply()
+        log.info("step SetupWebhook has been finished")
+    }
+
+/**
+    * webhook - webhook/webhook
+    * Add your code into this method and it will be called when the step runs
+    * @param repositories (required: )
+    * @param pushEvent (required: )
+    * @param createPrEvent (required: )
+    * @param prAction (required: )
+    * @param includeBranches (required: )
+    * @param excludeBranches (required: )
+    
+    */
+    def webhook(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        WebhookParameters sp = WebhookParameters.initParameters(p)
+    }
+
+/**
+    * createPullRequest - Create Pull Request/Create Pull Request
+    * Add your code into this method and it will be called when the step runs
+    * @param config (required: true)
+    * @param base (required: true)
+    * @param head (required: true)
+    * @param title (required: false)
+    * @param body (required: false)
+    * @param resultProperty (required: true)
+    */
+    def createPullRequest(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        CreatePullRequestParameters sp = CreatePullRequestParameters.initParameters(p)
+
+        def pr = wrapper.createPullRequest(sp.repository, sp.head, sp.base, [
+            title: sp.title,
+            body: sp.body
+        ])
+
+        def prData = [
+            link: pr.htmlUrl.toString(),
+            number: pr.number,
+            mergeable: pr.mergeable
+        ]
+
+        sr.setOutputParameter('link', pr.htmlUrl.toString())
+        sr.setOutputParameter('number', pr.number as String)
+        sr.setOutputParameter('pr', JsonOutput.toJson(prData))
+        sr.setReportUrl("${pr.title} # ${pr.number}", pr.htmlUrl.toString())
+        sr.setJobStepSummary("Created PR ${pr.number} ${pr.htmlUrl.toString()}")
+        sr.apply()
+
+        String resultPropertySheet = sp.resultProperty
+        FlowAPI.setFlowProperty("$resultPropertySheet/pr", JsonOutput.toJson(pr))
+        FlowAPI.setFlowProperty("$resultPropertySheet/number", pr.number as String)
+        FlowAPI.setFlowProperty("$resultPropertySheet/link", pr.htmlUrl.toString())
     }
 
 // === step ends ===
