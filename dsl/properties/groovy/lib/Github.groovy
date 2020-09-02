@@ -293,7 +293,7 @@ class Github extends FlowPlugin {
         }
         if (mimic && !state) {
             def outcome
-            switch(mimic) {
+            switch (mimic) {
                 case 'job':
                     outcome = FlowAPI.getFlowProperty("/myJob/outcome").value
                     log.info "Using outcome $outcome from the job"
@@ -312,8 +312,7 @@ class Github extends FlowPlugin {
 
             if (outcome != 'error') {
                 state = 'success'
-            }
-            else {
+            } else {
                 state = 'error'
             }
             log.info "Identified state as $state from the outcome $outcome"
@@ -535,71 +534,74 @@ class Github extends FlowPlugin {
     }
 
     /**
-    * setupWebhook - SetupWebhook/SetupWebhook
-    * Add your code into this method and it will be called when the step runs
-    * @param repositoryNames (required: )
-    * @param ec_trigger (required: )
-    * @param config (required: false)
-    * @param credential (required: )
-    
-    */
+     * setupWebhook - SetupWebhook/SetupWebhook
+     * Add your code into this method and it will be called when the step runs
+     * @param repositoryNames (required: )
+     * @param ec_trigger (required: )
+     * @param config (required: false)
+     * @param credential (required: )
+
+     */
     def setupWebhook(StepParameters p, StepResult sr) {
         // Use this parameters wrapper for convenient access to your parameters
         SetupWebhookParameters sp = SetupWebhookParameters.initParameters(p)
+        def trigger = sp.ec_trigger
+        println sp
+        //todo load trigger from somewhere
 
-        // Calling logger:
-        log.info p.asMap.get('repositoryNames')
-        log.info p.asMap.get('ec_trigger')
-        log.info p.asMap.get('config')
-        log.info p.asMap.get('credential')
-        
+        sp.repositoryNames.split(/\n/).each { repoName ->
+            if (sp.ec_action == "create") {
+                def webhook = gh.getRepository(repoName).createWebHook("trigger url")
+                //save id to the trigger object
+            }
+            else if (sp.ec_action == 'delete') {
+                //read id property from the trigger object
+                //def webhookId = trigger.webhook
+                //gh.getRepository(repoName)
+                //gh.getRepository(repoName).getHook(id).delete()
+            }
 
-        // Setting job step summary to the config name
-        sr.setJobStepSummary(p.getParameter('config').getValue() ?: 'null')
-
-        sr.setReportUrl("Sample Report", 'https://cloudbees.com')
-        sr.apply()
-        log.info("step SetupWebhook has been finished")
+        }
     }
 
-/**
-    * webhook - webhook/webhook
-    * Add your code into this method and it will be called when the step runs
-    * @param repositories (required: )
-    * @param pushEvent (required: )
-    * @param createPrEvent (required: )
-    * @param prAction (required: )
-    * @param includeBranches (required: )
-    * @param excludeBranches (required: )
-    
-    */
+    /**
+     * webhook - webhook/webhook
+     * Add your code into this method and it will be called when the step runs
+     * @param repositories (required: )
+     * @param pushEvent (required: )
+     * @param createPrEvent (required: )
+     * @param prAction (required: )
+     * @param includeBranches (required: )
+     * @param excludeBranches (required: )
+
+     */
     def webhook(StepParameters p, StepResult sr) {
         // Use this parameters wrapper for convenient access to your parameters
         WebhookParameters sp = WebhookParameters.initParameters(p)
     }
 
-/**
-    * createPullRequest - Create Pull Request/Create Pull Request
-    * Add your code into this method and it will be called when the step runs
-    * @param config (required: true)
-    * @param base (required: true)
-    * @param head (required: true)
-    * @param title (required: false)
-    * @param body (required: false)
-    * @param resultProperty (required: true)
-    */
+    /**
+     * createPullRequest - Create Pull Request/Create Pull Request
+     * Add your code into this method and it will be called when the step runs
+     * @param config (required: true)
+     * @param base (required: true)
+     * @param head (required: true)
+     * @param title (required: false)
+     * @param body (required: false)
+     * @param resultProperty (required: true)
+     */
     def createPullRequest(StepParameters p, StepResult sr) {
         // Use this parameters wrapper for convenient access to your parameters
         CreatePullRequestParameters sp = CreatePullRequestParameters.initParameters(p)
 
         def pr = wrapper.createPullRequest(sp.repository, sp.head, sp.base, [
             title: sp.title,
-            body: sp.body
+            body : sp.body
         ])
 
         def prData = [
-            link: pr.htmlUrl.toString(),
-            number: pr.number,
+            link     : pr.htmlUrl.toString(),
+            number   : pr.number,
             mergeable: pr.mergeable
         ]
 
@@ -616,7 +618,7 @@ class Github extends FlowPlugin {
         FlowAPI.setFlowProperty("$resultPropertySheet/link", pr.htmlUrl.toString())
     }
 
-// === step ends ===
+    // === step ends ===
 
 
     @Lazy

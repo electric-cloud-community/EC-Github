@@ -50,6 +50,8 @@ procedures:
         type: textarea
       - name: ec_trigger
         condition: ${false}
+      - name: ec_action
+        condition: ${false}
       - name: config
         required: false
       - name: credential

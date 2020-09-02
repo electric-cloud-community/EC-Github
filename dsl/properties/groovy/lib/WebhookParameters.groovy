@@ -10,13 +10,13 @@ class WebhookParameters {
     */
     String repositories
     /**
-    * Label: , type: checkbox
+    * Label: Process Push?, type: checkbox
     */
     boolean pushEvent
     /**
-    * Label: , type: checkbox
+    * Label: Process Pull Request?, type: checkbox
     */
-    boolean createPrEvent
+    boolean prEvent
     /**
     * Label: , type: textarea
     */
@@ -37,8 +37,8 @@ class WebhookParameters {
         parameters.repositories = repositories
         def pushEvent = sp.getParameter('pushEvent').value == "true"
         parameters.pushEvent = pushEvent
-        def createPrEvent = sp.getParameter('createPrEvent').value == "true"
-        parameters.createPrEvent = createPrEvent
+        def prEvent = sp.getParameter('prEvent').value == "true"
+        parameters.prEvent = prEvent
         def prAction = sp.getParameter('prAction').value
         parameters.prAction = prAction
         def includeBranches = sp.getParameter('includeBranches').value
@@ -49,4 +49,4 @@ class WebhookParameters {
         return parameters
     }
 }
-// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 7ea02aa434be589c7512ca3340e5a839 ===
+// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: a8af8af52c6d0c0db18ff4c6be5430e5 ===

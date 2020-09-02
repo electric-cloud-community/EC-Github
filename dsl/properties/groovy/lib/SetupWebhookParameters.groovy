@@ -14,6 +14,10 @@ class SetupWebhookParameters {
     */
     String ec_trigger
     /**
+    * Label: , type: entry
+    */
+    String ec_action
+    /**
     * Label: , type: credential
     */
     String credential
@@ -25,10 +29,12 @@ class SetupWebhookParameters {
         parameters.repositoryNames = repositoryNames
         def ec_trigger = sp.getParameter('ec_trigger').value
         parameters.ec_trigger = ec_trigger
+        def ec_action = sp.getParameter('ec_action').value
+        parameters.ec_action = ec_action
         def credential = sp.getParameter('credential').value
         parameters.credential = credential
 
         return parameters
     }
 }
-// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 8229d720c48b74cfe1eb06214d9dc528 ===
+// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: f4a52e3689f74e6730e590a96a675cb4 ===
