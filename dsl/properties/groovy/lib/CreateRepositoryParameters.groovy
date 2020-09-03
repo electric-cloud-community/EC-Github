@@ -20,7 +20,7 @@ class CreateRepositoryParameters {
     /**
     * Label: Public?, type: checkbox
     */
-    boolean public
+    boolean publicParam
     /**
     * Label: Teams, type: textarea
     */
@@ -47,8 +47,8 @@ class CreateRepositoryParameters {
         parameters.repo = repo
         def description = sp.getParameter('description').value
         parameters.description = description
-        def public = sp.getParameter('public').value == "true"
-        parameters.public = public
+        def publicParam = sp.getParameter('public').value == "true"
+        parameters.publicParam = publicParam
         def teams = sp.getParameter('teams').value
         parameters.teams = teams
         def branchProtectionRules = sp.getParameter('branchProtectionRules').value
@@ -61,4 +61,4 @@ class CreateRepositoryParameters {
         return parameters
     }
 }
-// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 86b0962d00e2d9d0a6eee55310b87347 ===
+// DO NOT EDIT THIS BLOCK ABOVE ^^^=== Parameters ends, checksum: 0d1d90dd635c39b4428e3db8755628b0 ===

@@ -553,8 +553,7 @@ class Github extends FlowPlugin {
             if (sp.ec_action == "create") {
                 def webhook = gh.getRepository(repoName).createWebHook("trigger url")
                 //save id to the trigger object
-            }
-            else if (sp.ec_action == 'delete') {
+            } else if (sp.ec_action == 'delete') {
                 //read id property from the trigger object
                 //def webhookId = trigger.webhook
                 //gh.getRepository(repoName)
@@ -594,9 +593,9 @@ class Github extends FlowPlugin {
         // Use this parameters wrapper for convenient access to your parameters
         CreatePullRequestParameters sp = CreatePullRequestParameters.initParameters(p)
 
-        def pr = wrapper.createPullRequest(sp.repository, sp.head, sp.base, [
+        GHPullRequest pr = wrapper.createPullRequest(sp.repository, sp.head, sp.base, [
             title: sp.title,
-            body : sp.body
+            body : sp.body,
         ])
 
         def prData = [
@@ -609,11 +608,11 @@ class Github extends FlowPlugin {
         sr.setOutputParameter('number', pr.number as String)
         sr.setOutputParameter('pr', JsonOutput.toJson(prData))
         sr.setReportUrl("${pr.title} # ${pr.number}", pr.htmlUrl.toString())
-        sr.setJobStepSummary("Created PR ${pr.number} ${pr.htmlUrl.toString()}")
+        sr.setJobStepSummary("PR ${pr.number} ${pr.htmlUrl.toString()}")
         sr.apply()
 
         String resultPropertySheet = sp.resultProperty
-        FlowAPI.setFlowProperty("$resultPropertySheet/pr", JsonOutput.toJson(pr))
+        FlowAPI.setFlowProperty("$resultPropertySheet/pr", JsonOutput.toJson(prData))
         FlowAPI.setFlowProperty("$resultPropertySheet/number", pr.number as String)
         FlowAPI.setFlowProperty("$resultPropertySheet/link", pr.htmlUrl.toString())
     }

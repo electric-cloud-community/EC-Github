@@ -45,6 +45,7 @@ procedures:
   - name: SetupWebhook
     shell: ec-groovy
     hasConfig: attach
+    hideFromStepPicker: true
     parameters:
       - name: repositoryNames
         type: textarea
@@ -448,7 +449,7 @@ procedures:
 
   - name: Create Pull Request
     shell: ec-groovy
-    description: This procedure can create pull requests
+    description: This procedure will create a pull request for the specified repository.
     hasConfig: true
     parameters:
       - name: repository
@@ -465,7 +466,7 @@ procedures:
       - name: head
         label: Head
         documentation: |
-          he name of the branch where your changes are implemented. For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.
+          The name of the branch where your changes are implemented. For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.
         type: entry
         required: true
       - name: title
@@ -478,6 +479,14 @@ procedures:
         documentation: The contents of the pull request.
         required: false
         label: Body
+#      - name: draft
+#        type: checkbox
+#        label: Draft?
+#        documentation: Mark this PR as a draft.
+#        checkedValue: true
+#        uncheckedValue: false
+#        required: false
+#        value: false
       - name: resultProperty
         required: true
         type: entry
