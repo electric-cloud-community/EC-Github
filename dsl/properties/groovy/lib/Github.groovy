@@ -1,8 +1,10 @@
 import com.cloudbees.flowpdf.*
 import com.cloudbees.flowpdf.exceptions.UnexpectedMissingValue
 import com.electriccloud.client.groovy.ElectricFlow
+import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import org.codehaus.groovy.control.CompilerConfiguration
 import org.kohsuke.github.*
 
 /**
@@ -617,6 +619,31 @@ class Github extends FlowPlugin {
         FlowAPI.setFlowProperty("$resultPropertySheet/link", pr.htmlUrl.toString())
     }
 
+    /**
+     * runScript - Run Script/Run Script
+     * Add your code into this method and it will be called when the step runs
+     * @param config (required: true)
+     * @param script (required: true)
+
+     */
+    def runScript(StepParameters p, StepResult sr) {
+        // Use this parameters wrapper for convenient access to your parameters
+        RunScriptParameters sp = RunScriptParameters.initParameters(p)
+        def compilerConfiguration = new CompilerConfiguration()
+        compilerConfiguration.scriptBaseClass = DelegatingScript.class.name
+        def shell = new GroovyShell(this.class.classLoader, new Binding([gh: gh, ef: FlowAPI.ec]), compilerConfiguration)
+        def gcpScript = new GithubScript(gh, FlowAPI.ec)
+        Script s = shell.parse(sp.script)
+        s.setDelegate(gcpScript)
+        def result = s.run()
+        log.info "Script evaluation result: $result"
+        if (result) {
+            sr.setOutputParameter('result', JsonOutput.toJson(result))
+            sr.setJobStepSummary(new JsonBuilder(result).toPrettyString())
+        }
+
+    }
+
     // === step ends ===
 
 
@@ -688,5 +715,17 @@ class Github extends FlowPlugin {
         FAIL
     }
 
+
+}
+
+
+class GithubScript {
+    def gh
+    def ef
+
+    GithubScript(github, ef) {
+        this.ef = ef
+        this.gh = github
+    }
 
 }

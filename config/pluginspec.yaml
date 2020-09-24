@@ -6,7 +6,6 @@ pluginInfo:
   authorUrl: pshubina@cloudbees.com
   category: Source Control
   repositoryUrl: https://github.com/electric-cloud-community/EC-Github
-  hasAdoc: true
 
 configuration:
   checkConnection: true
@@ -497,3 +496,16 @@ procedures:
       link: Link to the created pull request
       number: Number of the created pull request
       pr: JSON object that contains PR data
+
+  - name: Run Script
+    hasConfig: true
+    shell: ec-groovy
+    description: This procedure will run a pre-defined groovy script.
+    parameters:
+    - name: script
+      type: textarea
+      required: true
+      label: Script
+      documentation: Groovy script to run.
+    outputParameters:
+     result: The last value returned from the script.
