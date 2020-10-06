@@ -1,0 +1,622 @@
+Plugin version 3.3.0
+
+Revised on October 06, 2020
+
+
+
+
+
+== Overview
+
+This plugin integates with Github API.
+
+
+
+
+
+
+
+
+
+
+
+== Plugin Configurations
+Plugin configurations are sets of parameters that apply
+across some or all of the plugin procedures. They
+reduce repetition of common values, create
+predefined parameter sets for end users, and
+securely store credentials where needed. Each configuration
+is given a unique name that is entered in designated
+parameters on procedures that use them.
+
+
+=== Creating Plugin Configurations
+To create plugin configurations in CloudBees CD, do these steps:
+
+* Go to **Administration** &gt;**Plugins** to open the Plugin Manager.
+* Find the EC-Github-3.3.0 row.
+* Click *Configure* to open the
+     Configurations page.
+* Click *Create Configuration* as per the description of parameters below.
+
+
+
+=== Configuration Procedure Parameters
+[cols=",",options="header",]
+|===
+|Parameter |Description
+
+|Configuration Name | Unique name for the configuration
+
+
+|Description | Configuration description
+
+
+|REST API Endpoint | Endpoint to connect to. By default Github API endpoint.
+
+
+|Auth Scheme | Authorization scheme for the third-party connection.
+
+
+|Check Connection? | If checked, the connection endpoint and credentials entered as part of the configuration will be tested. If this option is checked, configuration will not be saved if the test fails.
+
+
+|Debug Level | This option sets debug level for logs. If info is selected, only summary information will be shown, for debug, there will be some debug information and for trace the whole requests and responses will be shown.
+
+
+|===
+
+
+
+
+
+[[procedures]]
+== Plugin Procedures
+
+
+
+[[AddIssueComment]]
+=== Add Issue Comment
+
+
+This procedure can create comments in issues and pull requests.
+
+
+
+==== Add Issue Comment Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| Issue or PR Num | Id of the pull request or issue where comment will be created.
+
+
+| Comment | Content of the comment. Markdown can be used here.
+
+
+|===
+
+
+
+==== Output Parameters
+
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| commentId | Id of the created comment
+
+|===
+
+
+
+
+
+[[CreatePullRequest]]
+=== Create Pull Request
+
+
+This procedure will create a pull request for the specified repository.
+
+
+
+==== Create Pull Request Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name in form owner/name.
+
+
+| Base | The name of the branch you want the changes pulled into. This should be an existing branch on the current repository. You cannot submit a pull request to one repository that requests a merge to a base of another repository.
+
+
+| Head | The name of the branch where your changes are implemented. For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.
+
+
+
+| Title | The title of the new pull request.
+
+
+| Body | The contents of the pull request.
+
+
+| Result Property Sheet | Property sheet to save PR results
+
+
+|===
+
+
+
+==== Output Parameters
+
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| link | Link to the created pull request
+
+| number | Number of the created pull request
+
+| pr | JSON object that contains PR data
+
+|===
+
+
+
+
+
+[[CreateRelease]]
+=== Create Release
+
+
+This procedure can create a new Github Release or update an existing one.
+
+
+
+==== Create Release Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| updateAction | Choose update action - what to do if the release already exists.
+
+
+| Release Name | The name for the release.
+
+
+| Tag Name | Tag name for the release
+
+
+| Source Commit | The commit to create a tag from
+
+
+| Release Body | Description for the release.
+
+
+| Release Assets | Release assets in form {"name": "path/to/file"}
+
+
+
+| Prerelease? | If checked, the release will be marked as a prerelease
+
+
+| Delete Old Tag? | If checked, the old tag associated with the old release will be deleted.
+
+
+|===
+
+
+
+
+
+
+[[CreateRepository]]
+=== Create Repository
+
+
+Creates a GitHub Repository
+
+
+
+==== Create Repository Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Owner | Repository owner, may be either user or organization.
+
+
+| Repository Name | Repository name.
+
+
+| Repository Description | Description for the repository.
+
+
+| Public? | Check to create a public repository.
+
+
+| Teams | Teams to add to the repository.
+E.g. "admins:ADMIN", "users:PUSH".
+Teams are newline-separated. Available permissions are ADMIN, PULL and PUSH.
+Teams are applicable to the organization only.
+
+
+
+| Branch Protection Rules | Rules to protect branches, e.g. master: reviewers = 1
+
+
+
+| Add License? | If checked, a license will be added to the repository.
+
+
+| License File | Path to the LICENSE file on the filesystem. If the file does not exist, the procedure will throw an error.
+
+
+|===
+
+
+
+
+
+
+[[DeleteRelease]]
+=== Delete Release
+
+
+Deletes a tag and an attached release from Github
+
+
+
+==== Delete Release Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| Tag Name | Tag name to delete. The release will be deleted as well.
+
+
+|===
+
+
+
+
+
+
+[[DownloadReleaseAsset]]
+=== Download Release Asset
+
+
+Downloads the specified release asset from Github.
+
+
+
+==== Download Release Asset Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| Tag Name | Tag name for the release
+
+
+| Asset Name | Asset name for thhe downloading.
+
+
+| Asset Path | Destination path for the downloaded asset.
+
+
+|===
+
+
+
+
+
+
+[[FindPullRequests]]
+=== Find Pull Requests
+
+
+This procedure will return all open PRs. If a branch is given, only PR with head at branch will be returned.
+
+
+
+==== Find Pull Requests Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| Branch Name | Name of the HEAD branch (one that will be merged).
+
+
+|===
+
+
+
+==== Output Parameters
+
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| prNum | Numbers of the found pull request(s).
+
+|===
+
+
+
+
+
+[[GetCommit]]
+=== Get Commit
+
+
+This procedure retrieves a commit data for the specified SHA
+
+
+
+==== Get Commit Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| Commit SHA | Commit SHA of the commit to set status to.
+
+
+| Result Property Sheet | Property sheet to save commit into to.
+
+
+|===
+
+
+
+
+
+
+[[GetFiles]]
+=== Get Files
+
+
+This procedure fetches the content of the specified files and stores it in
+the filesystem or in the provided property
+
+
+
+
+==== Get Files Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Owner | The name of the user or organization which owns the repository
+
+
+| Repository Name | The name of the GH repository.
+
+
+| Files | The newline-separated list of paths to the files
+
+
+
+| Folder to Save Files | The folder to save retrieved files, absolute or relative path
+
+
+| Git Reference | Reference (branch, commit or tag to download file from)
+
+
+|===
+
+
+
+
+
+
+[[SetCommitStatus]]
+=== Set Commit Status
+
+
+Set status for a commit using its SHA
+
+
+
+==== Set Commit Status Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Name | Repository name, in form owner/repo.
+
+
+| Commit SHA | Commit SHA of the commit to set status to.
+
+
+| State | State for the commit.
+
+
+| Target URL | The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.
+
+
+
+| Mimic Runtime Status | If selected, the GH status will be posted according to the status of the current CD runtime.
+
+
+| Description | A short description of the status.
+
+
+|===
+
+
+
+
+
+
+[[UploadFiles]]
+=== Upload Files
+
+
+This procedure uploads the provided files into the provided repository
+
+
+
+
+==== Upload Files Parameters
+[cols=",",options="header",]
+|===
+| Parameter | Description
+
+| Configuration Name | Previously defined configuration for the plugin
+
+
+| Repository Owner | The name of the user or organization which owns the repository
+
+
+| Repository Name | The name of the GH repository.
+
+
+| Source Directory | The directory resembling the repository source.
+If not provided, the current directory will be used.
+The relative paths of the files will be used to provide the path in the repository.
+
+
+
+| Mapping | A mapping in JSON form to provide the path to file in the repository, e.g.
+{'file': "my/file"} where file is the path to the file relative to the source directory.
+
+
+
+| Files | A list of files relative to the source directory, newline-separated
+
+
+
+| Branch | A branch name to commit files to.
+If not master, the branch will be created from the master branch.
+
+
+
+| Create Pull Request? | If checked, a PR will be created for the updated files.
+
+
+
+|===
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[[rns]]
+== Release notes
+
+
+=== EC-Github 3.3.0
+
+- Added Creat Pull Request procedure.
+
+
+=== EC-Github 3.0.1
+
+- Fixed setup procedure (with proper classpath calculation)
+
+
+=== EC-Github 3.0.0
+
+- Added "Set Commit Status" procedure
+
+- Added "Get Commit" procedure
+
+- Added endpoint and bearer authorization scheme to the configuration
+
+- Added binary dependencies handling
+
+
+=== EC-Github 2.1.1
+
+- Removed default value "files" from the destinationFolder parameter of the Get Files procedure.
+
+
+=== EC-Github 2.1.0
+
+- Get Files procedure has been added
+
+- Upload Files procedure has been added
+
+
+=== EC-Github 2.0.0
+
+- Multiple new procedures have been added.
+
+
+=== EC-Github 1.2.0
+
+- Create Release procedure has been added.
+
+
+=== EC-Github 1.1.0
+
+- Create Repository procedure can now add a license file to the repository.
+
+
+=== EC-Github 1.0.0
+
+- First release.
+
+

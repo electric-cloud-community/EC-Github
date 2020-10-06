@@ -18,3 +18,5 @@
   - Added binary dependencies handling
 3.0.1:
   - Fixed setup procedure (with proper classpath calculation)
+3.3.0:
+  - Added Creat Pull Request procedure.
