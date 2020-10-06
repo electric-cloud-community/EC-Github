@@ -5,7 +5,7 @@ pluginInfo:
   author: Polina
   authorUrl: pshubina@cloudbees.com
   category: Source Control
-#  repositoryUrl: https://github.com/electric-cloud-community/EC-Github
+  repositoryUrl: https://github.com/electric-cloud-community/EC-Github
 
 configuration:
   checkConnection: true
