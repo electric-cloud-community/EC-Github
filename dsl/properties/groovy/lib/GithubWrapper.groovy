@@ -26,38 +26,42 @@ class GithubWrapper {
     }
 
 
-    GHPullRequest createPullRequest(String ownerName, String repoName, String sourceBranch, String destBranch, Map parameters) {
+    GHPullRequest createPullRequest(String repoName, String head, String base, Map parameters) {
         GHRepository repository
         try {
-            repository = client.getRepository("${ownerName}/${repoName}")
+            repository = client.getRepository(repoName)
         } catch (IOException e) {
-            log.info "Repository ${ownerName}/${repoName} does not exist"
+            log.info "Failed to get repository ${repoName}: ${e.message}"
             throw e
         }
+        log.info("Found repository ${repository.htmlUrl}")
         String title = parameters.title
         if (!title) {
-            String lastCommitSha = repository.getBranch(sourceBranch).SHA1
+            String lastCommitSha = repository.getBranch(head).SHA1
             String lastCommitMessage = repository.getCommit(lastCommitSha).commitShortInfo.message
             title = lastCommitMessage
+            log.info "Using title ${title}"
         }
-        GHPullRequest request = repository.createPullRequest(title, sourceBranch, destBranch, "")
+
+        GHPullRequest pullRequest = repository.getPullRequests(GHIssueState.OPEN).find {
+            it.base.ref == base &&  it.head.ref == head
+        }
+        if (pullRequest) {
+            log.info "Pull Request already exists: ${pullRequest.number}"
+            pullRequest.setBody(parameters.body ?: '')
+            log.info "Updated PR body"
+            pullRequest.setTitle(title)
+            log.info "Updated PR title"
+            return pullRequest
+        }
+
+        String body = parameters.body ?: ''
+        GHPullRequest request = repository.createPullRequest(title, head,
+            base, body
+        )
         log.info "Created Pull Request: ${request.htmlUrl}"
         log.info "Mergeable: ${request.mergeable}"
 
-        if (parameters.approve) {
-            request.createReview().event(GHPullRequestReviewEvent.APPROVE).create()
-            log.info "Approved pull request #${request.number}"
-        }
-
-        if (parameters.merge) {
-            if (request.mergeable) {
-                log.info "Trying to auto-merge request #${request.number}"
-                request.merge()
-                log.info "Merged #${request.number} automatically"
-            } else {
-                log.info "Request #${request.number} cannot be merged automatically"
-            }
-        }
         return request
     }
 

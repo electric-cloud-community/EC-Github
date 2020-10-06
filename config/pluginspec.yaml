@@ -1,10 +1,11 @@
 pluginInfo:
   pluginName: EC-Github
-  version: 3.1.0
-  description: CloudBees Flow integration for Github API
+  version: 3.3.0
+  description: CloudBees CD integration for Github API
   author: Polina
   authorUrl: pshubina@cloudbees.com
   category: Source Control
+  repositoryUrl: https://github.com/electric-cloud-community/EC-Github
 
 configuration:
   checkConnection: true
@@ -22,8 +23,69 @@ configuration:
         passwordLabel: Bearer token to connect to Github API.
   hasDebugLevel: true
 
+properties:
+  - propertyName: ec_webhook
+    credentialProtected: true
+    properties:
+      - propertyName: displayName
+        value: GitHub
+      - propertyName: procedureName
+        value: webhook
+      - propertyName: script
+        value:
+          path: dsl/properties/ec_webhook/script.groovy
+      - propertyName: setupProcedure
+        value: SetupWebhook
+  - propertyName: ec_polling
+    properties:
+      displayName: GitHub
 
 procedures:
+  - name: SetupWebhook
+    shell: ec-groovy
+    hasConfig: attach
+    hideFromStepPicker: true
+    parameters:
+      - name: repositoryNames
+        type: textarea
+      - name: ec_trigger
+        condition: ${false}
+      - name: ec_action
+        condition: ${false}
+      - name: config
+        required: false
+      - name: credential
+        type: credential
+
+  - name: webhook
+    shell: ec-groovy
+    hideFromStepPicker: true
+#    this is a webhook backing procedure (gives form for the webhook)
+    parameters:
+      - name: repositories
+        type: textarea
+        documentation: List of repositories, separated by a newline.
+        required: false
+      - name: pushEvent
+        type: checkbox
+        label: Process Push?
+        documentation: Processes push events
+      - name: prEvent
+        type: checkbox
+        label: Process Pull Request?
+      - name: prAction
+        type: textarea
+        dependsOn: prEvent
+        condition: ${prEvent == "true"}
+        documentation: The action that was performed. Can be one of opened, edited, closed, assigned, unassigned, review_requested, review_request_removed, ready_for_review, labeled, unlabeled, synchronize, locked, unlocked, or reopened. If the action is closed and the merged key is false, the pull request was closed with unmerged commits. If the action is closed and the merged key is true, the pull request was merged.
+      - name: includeBranches
+        type: textarea
+        dependsOn: pushEvent
+        condition: ${pushEvent == "true"}
+      - name: excludeBranches
+        type: textarea
+        required: false
+
   - name: Create Repository
     description: Creates a GitHub Repository
     shell: ec-groovy
@@ -222,7 +284,7 @@ procedures:
         label: Commit SHA
       - name: state
         type: select
-        required: true
+        required: false
         label: State
         documentation: State for the commit.
         options:
@@ -240,12 +302,23 @@ procedures:
           The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.
         label: Target URL
         required: false
+      - name: mimic
+        label: Mimic Runtime Status
+        type: select
+        required: false
+        options:
+          - name: Job
+            value: job
+          - name: Pipeline Runtime
+            value: pipelineRuntime
+          - name: stageRuntime
+            value: stageRuntime
+        documentation: If selected, the GH status will be posted according to the status of the current CD runtime.
       - name: description
         type: textarea
         required: false
         label: Description
         documentation: A short description of the status.
-
 
   - name: Get Commit
     description: This procedure retrieves a commit data for the specified SHA
@@ -372,3 +445,67 @@ procedures:
         documentation: Content of the comment. Markdown can be used here.
     outputParameters:
       commentId: Id of the created comment
+
+  - name: Create Pull Request
+    shell: ec-groovy
+    description: This procedure will create a pull request for the specified repository.
+    hasConfig: true
+    parameters:
+      - name: repository
+        label: Repository Name
+        documentation: Repository name in form owner/name.
+        required: true
+        type: entry
+      - name: base
+        label: Base
+        documentation: The name of the branch you want the changes pulled into. This should be an existing branch on the current repository. You cannot submit a pull request to one repository that requests a merge to a base of another repository.
+        required: true
+        type: entry
+        value: master
+      - name: head
+        label: Head
+        documentation: |
+          The name of the branch where your changes are implemented. For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.
+        type: entry
+        required: true
+      - name: title
+        label: Title
+        documentation: The title of the new pull request.
+        type: textarea
+        required: false
+      - name: body
+        type: textarea
+        documentation: The contents of the pull request.
+        required: false
+        label: Body
+#      - name: draft
+#        type: checkbox
+#        label: Draft?
+#        documentation: Mark this PR as a draft.
+#        checkedValue: true
+#        uncheckedValue: false
+#        required: false
+#        value: false
+      - name: resultProperty
+        required: true
+        type: entry
+        label: Result Property Sheet
+        documentation: Property sheet to save PR results
+        value: /myJob/pr
+    outputParameters:
+      link: Link to the created pull request
+      number: Number of the created pull request
+      pr: JSON object that contains PR data
+
+  - name: Run Script
+    hasConfig: true
+    shell: ec-groovy
+    description: This procedure will run a pre-defined groovy script.
+    parameters:
+    - name: script
+      type: textarea
+      required: true
+      label: Script
+      documentation: Groovy script to run.
+    outputParameters:
+     result: The last value returned from the script.
