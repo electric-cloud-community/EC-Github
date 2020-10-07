@@ -16,7 +16,7 @@ dependencies {
     implementation 'com.electriccloud.plugins:flowpdf-groovy-lib:1.1.1.0'
 
     //That's ours
-    //implementation 'com.electriccloud:commander-api-bindings:9.0.0-SNAPSHOT'
+    implementation 'com.electriccloud:commander-api-bindings:9.0.0-SNAPSHOT'
 }
 
 

@@ -27,18 +27,16 @@ properties:
   - propertyName: ec_webhook
     credentialProtected: true
     properties:
-      - propertyName: displayName
-        value: GitHub
-      - propertyName: procedureName
-        value: webhook
-      - propertyName: script
-        value:
-          path: dsl/properties/ec_webhook/script.groovy
-      - propertyName: setupProcedure
-        value: SetupWebhook
-  - propertyName: ec_polling
-    properties:
-      displayName: GitHub
+      - propertyName: default
+        properties:
+          - propertyName: displayName
+            value: GitHub
+          - propertyName: procedureName
+            value: webhook
+          - propertyName: script
+            value: '$[/myProject/ec_webhook/script.groovy]'
+          - propertyName: setupProcedure
+            value: SetupWebhook
 
 procedures:
   - name: SetupWebhook
