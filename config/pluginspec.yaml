@@ -61,28 +61,78 @@ procedures:
 #    this is a webhook backing procedure (gives form for the webhook)
     parameters:
       - name: repositories
+        label: Repositories
+        documentation: List of repositories, separated by a newline. Leave empty to process events for all the repositories where the webhook is set up.
         type: textarea
-        documentation: List of repositories, separated by a newline.
         required: false
       - name: pushEvent
+        label: Process Push Events?
         type: checkbox
-        label: Process Push?
-        documentation: Processes push events
-      - name: prEvent
-        type: checkbox
-        label: Process Pull Request?
-      - name: prAction
-        type: textarea
-        dependsOn: prEvent
-        condition: ${prEvent == "true"}
-        documentation: The action that was performed. Can be one of opened, edited, closed, assigned, unassigned, review_requested, review_request_removed, ready_for_review, labeled, unlabeled, synchronize, locked, unlocked, or reopened. If the action is closed and the merged key is false, the pull request was closed with unmerged commits. If the action is closed and the merged key is true, the pull request was merged.
+        documentation: Check this if you want trigger to be run when the new commit appears in one of the monitored branches.
       - name: includeBranches
+        label: Include Branches
+        documentation: |
+          List of branch names, separated by a comma.
+          Incoming events will be discarded if not relate to one of the specified branches.
+          Leave empty to process events for all branches except ones specified in the “excludeBranches” parameter.
         type: textarea
         dependsOn: pushEvent
-        condition: ${pushEvent == "true"}
+        condition: ${pushEvent} == "true"
       - name: excludeBranches
+        label: Exclude Branches
         type: textarea
+        documentation: |
+          List of branch names, separated by a comma.
+          Incoming events will be discarded if relate to one of the specified branches.
+          Leave empty to process events for all branches or only for the specified in the "Include Branches".
         required: false
+        dependsOn: pushEvent
+        condition: ${pushEvent} == "true"
+      - name: prEvent
+        label: Process Pull Requests?
+        documentation: |
+          Check this if you want the trigger to be run when Pull Request event occurs
+        type: checkbox
+        required: false
+      - name: includePrActions
+        type: textarea
+        dependsOn: prEvent
+        condition: ${prEvent} == "true"
+        documentation: |
+          The action that was performed. Can be one of:
+          <ul><li>opened</li>
+          <li>edited</li>
+          <li>closed</li>
+          <li>closed_merged</li>
+          <li>closed_discarded</li>
+          <li>assigned</li>
+          <li>unassigned</li>
+          <li>review_requested</li>
+          <li>review_request_removed</li>
+          <li>ready_for_review</li>
+          <li>labeled</li>
+          <li>unlabeled</li>
+          <li>synchronize</li>
+          <li>locked<li>
+          <li>unlocked</li>
+          <li>reopened</li>
+          </ul>
+      - name: commitStatusEvent
+        label: Process Commit Status Events?
+        type: checkbox
+        documentation: Check this if you want trigger to be run when a commit status has been changed.
+        required: false
+      - name: includeCommitStatuses
+        label: Include Commit Status Events
+        type: textarea
+        documentation: |
+          Limit to following commit statuses. Comma-separated list with following statuses:
+          <ul>
+          <li>pending</li>
+          <li>success</li>
+          <li>failure</li>
+          <li>error</li>
+          </ul>
 
   - name: Create Repository
     description: Creates a GitHub Repository
