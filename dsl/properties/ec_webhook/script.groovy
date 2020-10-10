@@ -16,7 +16,24 @@ String body = args.body
 String url = args.url
 def query = args.query
 
-final ArrayList<String> SUPPORTED_EVENTS = ['push', 'pull_request', 'status', 'ping']
+final Map<String, Object> SUPPORTED_EVENTS = [
+        'push'        : [
+                enabledParamName: 'pushEvent',
+                actionsParamName: null
+        ],
+        'pull_request': [
+                enabledParamName: 'prEvent',
+                actionsParamName: 'includePrActions'
+        ],
+        'status'      : [
+                enabledParamName: 'commitStatusEvent',
+                actionsParamName: 'includeCommitStatuses'
+        ],
+        'ping'        : [
+                enabledParamName: null,
+                actionsParamName: null
+        ],
+]
 
 // Parsing headers
 String event = headers.get('X-GitHub-Event')
@@ -35,14 +52,14 @@ if (!trigger.webhookSecret) {
 //validating signature
 if (!verifySignedPayload(signature, (String) trigger.webhookSecret, body)) {
     // Todo: change to agreed exception
-    throw new RuntimeException("Signatures does not match. Please recheck the shared secrets.")
+    throw new RuntimeException("Signatures do not match. Please check that the trigger's 'webhookSecret' field value matches one specified in the Github repository webhook settings.")
 }
 
 // Receiving trigger parameters
 Map<String, String> pluginParameters = trigger.getPluginParameters()
 throw new RuntimeException("params:" + pluginParameters)
 
-WebhookEvent webhookEvent = WebhookEvent.getForType(event, body, pluginParameters)
+WebhookEvent webhookEvent = WebhookEvent.getForType(event, body)
 if (webhookEvent == null) {
     return [
             launchWebhook  : false,
@@ -72,28 +89,35 @@ if (event == 'ping') {
     ]
 }
 
-if (!webhookEvent.isEnabled()) {
+// Check event enabled
+boolean eventEnabled = pluginParameters.get(SUPPORTED_EVENTS[event]['enabledParamName']) != 'false'
+if (!eventEnabled) {
     return [
             responseMessage: "Processing for the '${webhookEvent.getName()}' event is disabled",
             launchWebhook  : false
     ]
 }
 
-if (!webhookEvent.isActionEnabled()) {
-    String action = webhookEvent.getAction()
+// Check action enabled
+String includedActions = pluginParameters.get(SUPPORTED_EVENTS[event]['actionsParamName'])
+String action = webhookEvent.getAction()
+boolean actionEnabled = doCheckActionIncluded(includedActions, action)
+if (!actionEnabled) {
     return [
-            responseMessage: "Processing for the '${action}' of the '${event}' is disabled",
+            responseMessage: "Processing for the '${action}' action of the '${event}' event is disabled",
             launchWebhook  : false
     ]
 }
 
+// Check that branch is included and not excluded
 String includeBranches = pluginParameters.get('includeBranches')
 String excludeBranches = pluginParameters.get('excludeBranches')
 
+ArrayList<String> eventBranches = webhookEvent.getBranchNames()
+String branchName = eventBranches.join(', ')
+
 if (includeBranches) {
-    ArrayList<String> branches = includeBranches.tokenize(/,\s+?/)
-    if (!webhookEvent.isCorrespondingToAnyBranchIn(branches)) {
-        String branchName = webhookEvent.getBranchNames().join(', ')
+    if (!doCheckBranchIncluded(includeBranches, eventBranches)) {
         return [
                 launchWebhook  : false,
                 responseMessage: "Ignoring '${event}' event for branch '${branchName}'"
@@ -101,9 +125,7 @@ if (includeBranches) {
     }
 }
 if (excludeBranches) {
-    ArrayList<String> branches = includeBranches.tokenize(/,\s+?/)
-    if (webhookEvent.isCorrespondingToAnyBranchIn(branches)) {
-        String branchName = webhookEvent.getBranchNames().join(', ')
+    if (doCheckBranchIncluded(excludeBranches, eventBranches)) {
         return [
                 launchWebhook  : false,
                 responseMessage: "Ignoring '${event}' event for exluded branch '${branchName}'"
@@ -111,14 +133,15 @@ if (excludeBranches) {
     }
 }
 
+// Collect data for response
 Map<String, String> webhookData = webhookEvent.collectWebhookData()
 Map<String, String> recentCommit = webhookEvent.getRecentCommit()
 
-def response = [
-        eventType    : 'push',
+Map<String, Object> response = [
+        eventType    : event,
         launchWebhook: true,
         branch       : webhookEvent.getBranchNames().join(', ')
-]
+] as Map<String, Object>
 
 if (webhookData) {
     response['webhookData'] = webhookData
@@ -132,12 +155,41 @@ if (recentCommit) {
 
 return response
 
-private boolean verifySignedPayload(String remoteSignature, String secretToken, String payload) {
+/**
+ * These methods depend on the form declaration
+ */
+
+private static boolean doCheckRepositoryIncluded(String parameterValue, String checked) {
+    ArrayList<String> list = parameterValue.tokenize(/\n/).collect({ it.trim() })
+    return list.contains(checked)
+}
+
+private static boolean doCheckActionIncluded(String parameterValue, String checked) {
+    if (!parameterValue) return true
+    ArrayList<String> list = parameterValue.tokenize(/,\s+?/).collect({ it.trim() })
+    return list.contains(checked)
+}
+
+private static boolean doCheckBranchIncluded(String parameterValue, ArrayList<String> checked) {
+    ArrayList<String> list = parameterValue.tokenize(/,\s+?/).collect({ it.trim() })
+    for (String b : checked) {
+        if (listContainsGlobMatch(list, b)) {
+            return true
+        }
+    }
+    return false
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+// End of business logic
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+static boolean verifySignedPayload(String remoteSignature, String secretToken, String payload) {
     def signature = 'sha1=' + hmacSignature(payload, secretToken)
     return signature.equals(remoteSignature)
 }
 
-private String hmacSignature(String data, String key) {
+static String hmacSignature(String data, String key) {
     try {
         final SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(UTF_8), "HmacSHA1");
         final Mac mac = Mac.getInstance("HmacSHA1");
@@ -150,27 +202,7 @@ private String hmacSignature(String data, String key) {
     }
 }
 
-private static boolean doCheckRepositoryIncluded(String parameterValue, String checked) {
-    ArrayList<String> list = parameterValue.tokenize(/\n/).collect({ it.trim() })
-    return listContainsStrictMatch(list, checked)
-}
-
-private static boolean doCheckActionIncluded(String parameterValue, String checked) {
-    if (!parameterValue) return true
-    ArrayList<String> list = parameterValue.tokenize(/,\s+?/).collect({ it.trim() })
-    return listContainsStrictMatch(list, checked)
-}
-
-private static boolean doCheckBranchIncluded(String parameterValue, String checked) {
-    ArrayList<String> list = parameterValue.tokenize(/,\s+?/).collect({ it.trim() })
-    return listContainsGlobMatch(list, checked)
-}
-
-private static boolean listContainsStrictMatch(ArrayList<String> list, String checked) {
-    return list.contains(checked)
-}
-
-private static boolean listContainsGlobMatch(ArrayList<String> list, String checked) {
+static boolean listContainsGlobMatch(ArrayList<String> list, String checked) {
     for (String l : list) {
         def pattern = Pattern.compile(l)
         if (checked ==~ pattern) {
@@ -189,42 +221,25 @@ abstract class WebhookEvent {
     }()
 
     Map<String, Object> payload
-    boolean enabled
 
-    abstract static String enabledParameterName
-    abstract static String includedActionsParameterName
-
-    WebhookEvent(String payload, Map<String, String> triggerPluginParameters) {
+    WebhookEvent(String payload) {
         this.payload = (new JsonSlurper()).parseText(payload) as Map<String, Object>
-        this.enabled = isEnabled(triggerPluginParameters)
     }
 
-    static WebhookEvent getForType(String event, String payload, Map<String, String> triggerPluginParameters) {
+    static WebhookEvent getForType(String event, String payload) {
         if (event == 'pull_request') {
-            return new PullRequestEvent(payload, triggerPluginParameters)
+            return new PullRequestEvent(payload)
         } else if (event == 'push') {
-            return new PushEvent(payload, triggerPluginParameters)
+            return new PushEvent(payload)
         } else if (event == 'status') {
-            return new CommitStatusEvent(payload, triggerPluginParameters)
+            return new CommitStatusEvent(payload)
         } else {
             // This should be handled by the SUPPORTED_EVENTS check, but just in case
             throw new RuntimeException("Yep, there is no handling for '${event}' event yet.")
         }
     }
 
-    boolean isEnabled() { enabled }
-
-    private boolean checkEnabled(Map<String, String> triggerPluginParameters) {
-        if (triggerPluginParameters[enabledParameterName] == 'false') {
-            return false
-        }
-        if (includedActionsParameterName) {
-            String actionsIncluded = triggerPluginParameters[includedActionsParameterName]
-            doCheckActionIncluded(actionsIncluded, this.action)
-        }
-    }
-
-    String getRepositoryName() { return payload?.get('repository')?.get('full_name') }
+    String getRepositoryName() { return payload.get('repository')?.get('full_name') }
 
     abstract ArrayList<String> getBranchNames()
 
@@ -234,30 +249,14 @@ abstract class WebhookEvent {
 
     abstract Map<String, String> collectWebhookData()
 
-    boolean isCorrespondingToBranch(String branchName) {
-        return getBranchNames().contains(branchName)
-    }
-
-    boolean isCorrespondingToAnyBranchIn(ArrayList<String> branchNames) {
-        // TODO: Rewrite to map + constant check
-        for (String branchName : branchNames) {
-            if (this.isCorrespondingToBranch(branchName)) {
-                return true
-            }
-        }
-        return false
-    }
-
 }
 
 class PullRequestEvent extends WebhookEvent {
 
     static String name = 'pull_request'
-    static String enabledParameterName = 'prEvent'
-    static String includedActionsParameterName = 'includePrActions'
 
-    PullRequestEvent(String payload, Map<String, String> triggerPluginParameters) {
-        super(payload, triggerPluginParameters)
+    PullRequestEvent(String payload) {
+        super(payload)
     }
 
     @Lazy
@@ -300,11 +299,9 @@ class PullRequestEvent extends WebhookEvent {
 class PushEvent extends WebhookEvent {
 
     static String name = 'push'
-    static String enabledParameterName = 'pushEvent'
-    static String includedActionsParameterName = null
 
-    PushEvent(String payload, Map<String, String> triggerPluginParameters) {
-        super(payload, triggerPluginParameters)
+    PushEvent(String payload) {
+        super(payload)
     }
 
     @Lazy
@@ -347,11 +344,10 @@ class PushEvent extends WebhookEvent {
 
 class CommitStatusEvent extends WebhookEvent {
 
-    static String enabledParameterName = 'commitStatusEvent'
-    static String includedActions = 'includeCommitStatuses'
+    static String name = 'status'
 
-    CommitStatusEvent(String payload, Map<String, String> triggerPluginParameters) {
-        super(payload, triggerPluginParameters)
+    CommitStatusEvent(String payload) {
+        super(payload)
     }
 
     @Lazy
