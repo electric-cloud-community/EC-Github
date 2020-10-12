@@ -1,6 +1,6 @@
 pluginInfo:
   pluginName: EC-Github
-  version: 3.3.0
+  version: 3.4.0
   description: CloudBees CD integration for Github API
   author: Polina
   authorUrl: pshubina@cloudbees.com
@@ -102,7 +102,6 @@ procedures:
           The action that was performed. Can be one of:
           <ul><li>opened</li>
           <li>edited</li>
-          <li>closed</li>
           <li>closed_merged</li>
           <li>closed_discarded</li>
           <li>assigned</li>

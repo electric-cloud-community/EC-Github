@@ -19,4 +19,6 @@
 3.0.1:
   - Fixed setup procedure (with proper classpath calculation)
 3.3.0:
-  - Added Creat Pull Request procedure.
+  - Added Create Pull Request procedure.
+3.4.0:
+  - Added webhooks support.
