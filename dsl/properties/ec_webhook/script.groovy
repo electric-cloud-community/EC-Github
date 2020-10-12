@@ -57,8 +57,12 @@ if (!verifySignedPayload(signature, (String) trigger.webhookSecret, body)) {
 }
 
 // Receiving trigger parameters
-Map<String, String> pluginParameters = trigger.getPluginParameters()
-throw new RuntimeException("params:" + pluginParameters)
+def paramsPropertySheet = trigger.pluginParameters
+Map<String, String> pluginParameters = [:]
+paramsPropertySheet['properties'].each { String k, Map<String, String> v ->
+    pluginParameters[k] = v['value']
+}
+
 
 WebhookEvent webhookEvent = WebhookEvent.getForType(event, body)
 if (webhookEvent == null) {
@@ -77,15 +81,6 @@ if (!doCheckRepositoryIncluded(pluginParameters.get('repositories'), repositoryN
     return [
             eventType      : event,
             responseMessage: "Ignoring ${repositoryName} repository event",
-            launchWebhook  : false
-    ]
-}
-
-// We can respond to ping immediately
-if (event == 'ping') {
-    return [
-            eventType      : 'ping',
-            responseMessage: 'pong',
             launchWebhook  : false
     ]
 }
@@ -241,15 +236,16 @@ abstract class WebhookEvent {
     }
 
     static WebhookEvent getForType(String event, String payload) {
-        if (event == 'pull_request') {
+        if (event == 'ping') {
+            return new PingEvent(payload)
+        } else if (event == 'pull_request') {
             return new PullRequestEvent(payload)
         } else if (event == 'push') {
             return new PushEvent(payload)
         } else if (event == 'status') {
             return new CommitStatusEvent(payload)
         } else {
-            // This should be handled by the SUPPORTED_EVENTS check, but just in case
-            throw new RuntimeException("Yep, there is no handling for '${event}' event yet.")
+            return null
         }
     }
 
@@ -257,12 +253,33 @@ abstract class WebhookEvent {
 
     abstract ArrayList<String> getBranchNames()
 
-    abstract ArrayList<Map<String, String>> getCommits()
-
     abstract Map<String, String> getRecentCommit()
 
     abstract Map<String, String> collectWebhookData()
 
+}
+
+class PingEvent extends WebhookEvent {
+    static String name = 'ping'
+
+    PingEvent(String payload) {
+        super(payload)
+    }
+
+    @Override
+    ArrayList<String> getBranchNames() {
+        return null
+    }
+
+    @Override
+    Map<String, String> getRecentCommit() {
+        return null
+    }
+
+    @Override
+    Map<String, String> collectWebhookData() {
+        return null
+    }
 }
 
 class PullRequestEvent extends WebhookEvent {
@@ -293,13 +310,11 @@ class PullRequestEvent extends WebhookEvent {
         ]
     }()
 
-    @Lazy
-    Map<String, String> recentCommit = {
-        if (!commits || !commits.size()) {
-            return null
-        }
+    @Override
+    Map<String, String> getRecentCommit() {
+        if (!commits || !commits.size()) return null
         return commits.first()
-    }()
+    }
 
     PullRequestEvent(String payload) {
         super(payload)
@@ -405,7 +420,6 @@ class CommitStatusEvent extends WebhookEvent {
         return commitBranches.collect({ it.get('name') })
     }()
 
-    @Override
     ArrayList<Map<String, String>> getCommits() {
         // Single commit in an array
         return [getRecentCommit()]
