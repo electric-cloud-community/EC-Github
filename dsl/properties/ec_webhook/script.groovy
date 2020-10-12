@@ -67,8 +67,8 @@ paramsPropertySheet['properties'].each { String k, Map<String, String> v ->
 WebhookEvent webhookEvent = WebhookEvent.getForType(event, body)
 if (webhookEvent == null) {
     return [
-            launchWebhook  : false,
-            responseMessage: "Ignoring unsupported '${event}' event"
+            responseMessage: "Ignoring unsupported '${event}' event",
+            launchWebhook  : false
     ]
 }
 
@@ -79,7 +79,6 @@ if (!repositoryName) {
 }
 if (!doCheckRepositoryIncluded(pluginParameters.get('repositories'), repositoryName)) {
     return [
-            eventType      : event,
             responseMessage: "Ignoring ${repositoryName} repository event",
             launchWebhook  : false
     ]
@@ -126,16 +125,16 @@ String branchName = eventBranches.join(', ')
 if (includeBranches) {
     if (!doCheckBranchIncluded(includeBranches, eventBranches)) {
         return [
-                launchWebhook  : false,
-                responseMessage: "Ignoring '${event}' event for branch '${branchName}'"
+                responseMessage: "Ignoring '${event}' event for branch '${branchName}'",
+                launchWebhook  : false
         ]
     }
 }
 if (excludeBranches) {
     if (doCheckBranchIncluded(excludeBranches, eventBranches)) {
         return [
-                launchWebhook  : false,
-                responseMessage: "Ignoring '${event}' event for exluded branch '${branchName}'"
+                responseMessage: "Ignoring '${event}' event for exluded branch '${branchName}'",
+                launchWebhook  : false
         ]
     }
 }
@@ -167,7 +166,7 @@ return response
  */
 
 private static boolean doCheckRepositoryIncluded(String parameterValue, String checked) {
-    ArrayList<String> list = parameterValue.tokenize(/\n/).collect({ it.trim() })
+    ArrayList<String> list = parameterValue.tokenize("\n").collect({ it.trim() })
     return list.contains(checked)
 }
 
@@ -366,9 +365,9 @@ class PushEvent extends WebhookEvent {
         if (!refName) {
             return null
         }
-        if (!refName.matches('/refs/heads')) {
+        if (!refName.contains('refs/heads/')) {
             // This is not a branch push
-            throw new RuntimeException("Only the branch 'push' events are supported.")
+            throw new RuntimeException("Only the branch 'push' events are supported, got '${refName}'")
         }
         return [refName.replace('/refs/heads/', '')]
     }()
