@@ -548,6 +548,7 @@ procedures:
   - name: Run Script
     hasConfig: true
     shell: ec-groovy
+    hideFromStepPicker: true
     description: This procedure will run a pre-defined groovy script.
     parameters:
     - name: script

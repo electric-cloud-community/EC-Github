@@ -14,7 +14,7 @@
     <h1>@PLUGIN_KEY@</h1>
     <p>Plugin version @PLUGIN_VERSION@</p>
     
-    <p>Revised on November 29, 2019</p>
+    <p>Revised on September 02, 2020</p>
     
     <hr style="margin-left: -10px; margin-top: 10px; height: 1px; width: 100%; color: #5981BD;" noshade="noshade"/>
     <h1>Contents</h1>
@@ -39,6 +39,12 @@
     <ul>
         
 
+        <li><a href="#AddIssueComment">Add Issue Comment</a></li>
+        
+
+        <li><a href="#CreatePullRequest">Create Pull Request</a></li>
+        
+
         <li><a href="#CreateRelease">Create Release</a></li>
         
 
@@ -49,6 +55,9 @@
         
 
         <li><a href="#DownloadReleaseAsset">Download Release Asset</a></li>
+        
+
+        <li><a href="#FindPullRequests">Find Pull Requests</a></li>
         
 
         <li><a href="#GetCommit">Get Commit</a></li>
@@ -105,7 +114,7 @@
         </p>
 
         <h3>Creating Plugin Configurations</h3>
-        <p>To create plugin configurations in CloudBees Flow,
+        <p>To create plugin configurations in CloudBees CD,
             do these steps:</p>
 
         <li>Go to <b>Administration</b> &gt; <b>Plugins</b> to open the Plugin Manager.</li>
@@ -114,7 +123,8 @@
              Configurations page.</li>
         <li>Click <b>Create Configuration</b> as per the description of parameters below.</li>
         
-        Configuration Parameters
+
+        <h2>Configuration Procedure Parameters</h2>
         <table class="grid">
             <thead>
             <tr>
@@ -154,22 +164,8 @@
             
             <tr>
                 
-                    <td >Bearer token to connect to Github API.</td>
-                    <td></td>
-                
-            </tr>
-            
-            <tr>
-                
-                    <td >Basic Auth Credential</td>
-                    <td>Username and password for the Basic authentication</td>
-                
-            </tr>
-            
-            <tr>
-                
                     <td >Check Connection?</td>
-                    <td>If checked, a connection endpoint and credentials will be tested before save. The configuration will not be saved if the test fails.</td>
+                    <td>If checked, the connection endpoint and credentials entered as part of the configuration will be tested. If this option is checked, configuration will not be saved if the test fails.</td>
                 
             </tr>
             
@@ -191,6 +187,182 @@
     <h1 id="procedures">Plugin Procedures</h1>
     
     
+
+    
+    <div id="AddIssueComment">
+        <h2>Add Issue Comment</h2>
+        
+        
+        <p>This procedure can create comments in issues and pull requests.</p>
+        
+        
+        <h3>Add Issue Comment Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Issue or PR Num</td>
+                <td>Id of the pull request or issue where comment will be created.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Comment</td>
+                <td>Content of the comment. Markdown can be used here.</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+        <h4>Output Parameters</h4>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>commentId</td>
+                <td>Id of the created comment</td>
+            </tr>
+            
+            </tbody>
+        </table>
+        
+
+        
+    </div>
+
+    
+    <div id="CreatePullRequest">
+        <h2>Create Pull Request</h2>
+        
+        
+        <p>This procedure will create a pull request for the specified repository.</p>
+        
+        
+        <h3>Create Pull Request Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name in form owner/name.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Base</td>
+                <td>The name of the branch you want the changes pulled into. This should be an existing branch on the current repository. You cannot submit a pull request to one repository that requests a merge to a base of another repository.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Head</td>
+                <td>The name of the branch where your changes are implemented. For cross-repository pull requests in the same network, namespace head with a user like this: username:branch.
+</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Title</td>
+                <td>The title of the new pull request.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Body</td>
+                <td>The contents of the pull request.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Result Property Sheet</td>
+                <td>Property sheet to save PR results</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+        <h4>Output Parameters</h4>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>link</td>
+                <td>Link to the created pull request</td>
+            </tr>
+            
+            <tr>
+                <td>number</td>
+                <td>Number of the created pull request</td>
+            </tr>
+            
+            <tr>
+                <td>pr</td>
+                <td>JSON object that contains PR data</td>
+            </tr>
+            
+            </tbody>
+        </table>
+        
+
+        
+    </div>
 
     
     <div id="CreateRelease">
@@ -226,7 +398,7 @@
             
             <tr>
                 
-                <td class="required"></td>
+                <td class="required">updateAction</td>
                 <td>Choose update action - what to do if the release already exists.</td>
                 
             </tr>
@@ -492,6 +664,71 @@ Teams are applicable to the organization only.
     </div>
 
     
+    <div id="FindPullRequests">
+        <h2>Find Pull Requests</h2>
+        
+        
+        <p>This procedure will return all open PRs. If a branch is given, only PR with head at branch will be returned.</p>
+        
+        
+        <h3>Find Pull Requests Parameters</h3>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                
+                <td class="required">Configuration Name</td>
+                <td>Previously defined configuration for the plugin</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td class="required">Repository Name</td>
+                <td>Repository name, in form owner/repo.</td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Branch Name</td>
+                <td>Name of the HEAD branch (one that will be merged).</td>
+                
+            </tr>
+            
+            </tbody>
+        </table>
+
+        
+        <h4>Output Parameters</h4>
+        <table class="grid">
+            <thead>
+            <tr>
+                <th>Parameter</th>
+                <th>Description</th>
+            </tr>
+            </thead>
+            <tbody>
+            
+            <tr>
+                <td>prNum</td>
+                <td>Numbers of the found pull request(s).</td>
+            </tr>
+            
+            </tbody>
+        </table>
+        
+
+        
+    </div>
+
+    
     <div id="GetCommit">
         <h2>Get Commit</h2>
         
@@ -657,7 +894,7 @@ the filesystem or in the provided property
             
             <tr>
                 
-                <td class="required">State</td>
+                <td >State</td>
                 <td>State for the commit.</td>
                 
             </tr>
@@ -667,6 +904,13 @@ the filesystem or in the provided property
                 <td >Target URL</td>
                 <td>The target URL to associate with this status. This URL will be linked from the GitHub UI to allow users to easily see the source of the status.
 </td>
+                
+            </tr>
+            
+            <tr>
+                
+                <td >Mimic Runtime Status</td>
+                <td>If selected, the GH status will be posted according to the status of the current CD runtime.</td>
                 
             </tr>
             
