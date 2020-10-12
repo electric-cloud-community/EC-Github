@@ -430,8 +430,8 @@ class CommitStatusEvent extends WebhookEvent {
         return [
                 commitId         : commit['sha'],
                 commitMessage    : commit['message'],
-                commitAuthorName : commit['commiter']['name'],
-                commitAuthorEmail: commit['commiter']['email'],
+                commitAuthorName : commit['commit']['author']['name'],
+                commitAuthorEmail: commit['commit']['author']['email'],
         ] as Map<String, String>
     }
 
