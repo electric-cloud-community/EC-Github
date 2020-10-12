@@ -16,6 +16,7 @@ String body = args.body
 String url = args.url
 def query = args.query
 
+// This map corresponds to the procedure form
 final Map<String, Object> SUPPORTED_EVENTS = [
         'push'        : [
                 enabledParamName: 'pushEvent',
@@ -90,23 +91,34 @@ if (event == 'ping') {
 }
 
 // Check event enabled
-boolean eventEnabled = pluginParameters.get(SUPPORTED_EVENTS[event]['enabledParamName']) != 'false'
-if (!eventEnabled) {
-    return [
-            responseMessage: "Processing for the '${webhookEvent.getName()}' event is disabled",
-            launchWebhook  : false
-    ]
+String eventEnabledParamName = SUPPORTED_EVENTS[event]['enabledParamName']
+if (eventEnabledParamName != null) {
+
+    boolean eventEnabled = pluginParameters.get(eventEnabledParamName) != 'false'
+    if (!eventEnabled) {
+        return [
+                responseMessage: "Processing for the '${webhookEvent.getName()}' event is disabled",
+                launchWebhook  : false
+        ]
+    }
 }
 
+
 // Check action enabled
-String includedActions = pluginParameters.get(SUPPORTED_EVENTS[event]['actionsParamName'])
-String action = webhookEvent.getAction()
-boolean actionEnabled = doCheckActionIncluded(includedActions, action)
-if (!actionEnabled) {
-    return [
-            responseMessage: "Processing for the '${action}' action of the '${event}' event is disabled",
-            launchWebhook  : false
-    ]
+String includedActionParamName = SUPPORTED_EVENTS[event]['actionsParamName']
+if (includedActionParamName != null) {
+
+    String includedActions = pluginParameters.get(includedActionParamName)
+    String eventAction = webhookEvent.getAction()
+
+    boolean actionEnabled = doCheckActionIncluded(includedActions, eventAction)
+
+    if (!actionEnabled) {
+        return [
+                responseMessage: "Processing for the '${eventAction}' action of the '${event}' event is disabled",
+                launchWebhook  : false
+        ]
+    }
 }
 
 // Check that branch is included and not excluded
@@ -191,12 +203,12 @@ static boolean verifySignedPayload(String remoteSignature, String secretToken, S
 
 static String hmacSignature(String data, String key) {
     try {
-        final SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(UTF_8), "HmacSHA1");
-        final Mac mac = Mac.getInstance("HmacSHA1");
-        mac.init(keySpec);
-        final byte[] rawHMACBytes = mac.doFinal(data.getBytes(UTF_8) as byte[]);
+        final SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(UTF_8), "HmacSHA1")
+        final Mac mac = Mac.getInstance("HmacSHA1")
+        mac.init(keySpec)
+        final byte[] rawHMACBytes = mac.doFinal(data.getBytes(UTF_8) as byte[])
 
-        return Hex.encodeHexString(rawHMACBytes);
+        return Hex.encodeHexString(rawHMACBytes)
     } catch (Exception e) {
         throw new RuntimeException("Computed invalid signature: " + e.getMessage())
     }
@@ -214,6 +226,7 @@ static boolean listContainsGlobMatch(ArrayList<String> list, String checked) {
 
 abstract class WebhookEvent {
     abstract String name
+    abstract String body
 
     @Lazy
     String action = {
@@ -223,7 +236,8 @@ abstract class WebhookEvent {
     Map<String, Object> payload
 
     WebhookEvent(String payload) {
-        this.payload = (new JsonSlurper()).parseText(payload) as Map<String, Object>
+        this.body = payload
+        this.payload = (new JsonSlurper()).parseText(this.body) as Map<String, Object>
     }
 
     static WebhookEvent getForType(String event, String payload) {
@@ -255,10 +269,6 @@ class PullRequestEvent extends WebhookEvent {
 
     static String name = 'pull_request'
 
-    PullRequestEvent(String payload) {
-        super(payload)
-    }
-
     @Lazy
     ArrayList<String> branchNames = {
         String refName = payload.get('pull_request')?.get('head')?.get('ref')
@@ -270,12 +280,13 @@ class PullRequestEvent extends WebhookEvent {
 
     @Lazy
     ArrayList<Map<String, String>> commits = {
-        Map<String, Object> prHead = payload.get('head')
+        def prHead = payload['head']
         return [
                 [
                         commitId         : prHead['sha'],
                         branch           : prHead['ref'],
                         commitAuthorName : prHead['user']['login'],
+
                         //TODO: check if we should request additionally
                         commitAuthorEmail: null,
                 ] as Map<String, String>
@@ -290,9 +301,39 @@ class PullRequestEvent extends WebhookEvent {
         return commits.first()
     }()
 
+    PullRequestEvent(String payload) {
+        super(payload)
+    }
+
     @Override
     Map<String, String> collectWebhookData() {
-        return null
+        def pullRequest = payload['pull_request']
+        return [
+                number : pullRequest['number'],
+                title  : pullRequest['title'],
+                body   : pullRequest['body'],
+                state  : pullRequest['state'],
+                url    : pullRequest['html_url'],
+                payload: this.body
+        ] as Map<String, String>
+    }
+
+    /**
+     * We are adding two additional virtual actions: closed_merged, closed_discarded
+     */
+    @Override
+    String getAction() {
+        String action = payload.get('action')
+        if (action == 'closed') {
+            def pullRequest = payload.get('pull_request')
+            if (pullRequest['merged'] == 'true') {
+                return 'closed_merged'
+            } else {
+                return 'closed_discarded'
+            }
+
+        }
+        return action
     }
 }
 
@@ -333,12 +374,17 @@ class PushEvent extends WebhookEvent {
 
     @Override
     Map<String, String> getRecentCommit() {
-        return null
+        if (!commits || !commits.size()) return null
+        return commits.first()
     }
 
     @Override
     Map<String, String> collectWebhookData() {
-        return null
+        return [
+                ref    : payload['ref'],
+                branch : getBranchNames().join(', '),
+                payload: this.body
+        ] as Map<String, String>
     }
 }
 
@@ -361,16 +407,27 @@ class CommitStatusEvent extends WebhookEvent {
 
     @Override
     ArrayList<Map<String, String>> getCommits() {
-        return null
+        // Single commit in an array
+        return [getRecentCommit()]
     }
 
     @Override
     Map<String, String> getRecentCommit() {
-        return null
+        def commit = payload['commit']
+        return [
+                commitId         : commit['sha'],
+                commitMessage    : commit['message'],
+                commitAuthorName : commit['commiter']['name'],
+                commitAuthorEmail: commit['commiter']['email'],
+        ] as Map<String, String>
     }
 
     @Override
     Map<String, String> collectWebhookData() {
-        return null
+        return [
+                sha    : payload['sha'],
+                state  : payload['state'],
+                payload: this.body
+        ] as Map<String, String>
     }
 }
