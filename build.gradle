@@ -15,8 +15,8 @@ dependencies {
     implementation 'org.kohsuke:github-api:1.95'
     implementation 'com.electriccloud.plugins:flowpdf-groovy-lib:1.1.1.0'
 
-    //That's ours
-    implementation 'com.electriccloud:commander-api-bindings:9.0.0-SNAPSHOT'
+    //That's ours (you can uncomment this for local testing)
+//    implementation 'com.electriccloud:commander-api-bindings:9.0.0-SNAPSHOT'
 }
 
 
