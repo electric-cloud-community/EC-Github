@@ -211,7 +211,7 @@ static String hmacSignature(String data, String key) {
 static boolean listContainsGlobMatch(ArrayList<String> list, String checked) {
     for (String l : list) {
         def pattern = Pattern.compile(l)
-        if (checked ==~ pattern) {
+        if (pattern.matcher(checked).lookingAt()) {
             return true
         }
     }
@@ -296,7 +296,7 @@ class PullRequestEvent extends WebhookEvent {
 
     @Lazy
     ArrayList<Map<String, String>> commits = {
-        def prHead = payload['head']
+        def prHead = payload['pull_request']['head']
         return [
                 [
                         commitId         : prHead['sha'],
