@@ -369,7 +369,11 @@ class PushEvent extends WebhookEvent {
             // This is not a branch push
             throw new RuntimeException("Only the branch 'push' events are supported, got '${refName}'")
         }
-        return [refName.replace('/refs/heads/', '')]
+
+        // Stripping the ref path
+        String branchName = refName.replaceAll(/^refs\/heads\//, '')
+
+        return [branchName]
     }()
 
     @Lazy
